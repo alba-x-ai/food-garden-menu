@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Food Garden</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>🌿 Food Garden</h1>
+
+<div class="menu">
+
+<div class="item">
+<h3>Борщ</h3>
+<p>350 г</p>
+<p>70 VND</p>
+<button onclick="add('Борщ',70)">Добавить</button>
+</div>
+
+<div class="item">
+<h3>Солянка</h3>
+<p>350 г</p>
+<p>90 VND</p>
+<button onclick="add('Солянка',90)">Добавить</button>
+</div>
+
+<div class="item">
+<h3>Пельмени</h3>
+<p>250 г</p>
+<p>90 VND</p>
+<button onclick="add('Пельмени',90)">Добавить</button>
+</div>
+
+</div>
+
+<button class="cart" onclick="checkout()">Оформить заказ</button>
+
+<script src="app.js"></script>
+
+</body>
+</html>
