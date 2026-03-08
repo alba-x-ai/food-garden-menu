@@ -74,6 +74,7 @@ const categoriesDiv = document.getElementById("categories")
 const menuDiv = document.getElementById("menu")
 const cartDiv = document.getElementById("cart")
 
+
 function renderCategories(){
 
 categoriesDiv.innerHTML=""
@@ -84,13 +85,24 @@ const btn=document.createElement("div")
 btn.className="category"
 btn.innerText=cat
 
-btn.onclick=()=>renderMenu(cat)
+btn.onclick=()=>{
+
+document.querySelectorAll(".category").forEach(c=>{
+c.classList.remove("active")
+})
+
+btn.classList.add("active")
+
+renderMenu(cat)
+
+}
 
 categoriesDiv.appendChild(btn)
 
 })
 
 }
+
 
 function renderPopular(){
 
@@ -101,9 +113,7 @@ Object.keys(menu).forEach(category=>{
 menu[category].forEach(item=>{
 
 if(popular.includes(item.name)){
-
 createCard(item)
-
 }
 
 })
@@ -111,18 +121,18 @@ createCard(item)
 })
 
 }
+
 
 function renderMenu(category){
 
 menuDiv.innerHTML=""
 
 menu[category].forEach(item=>{
-
 createCard(item)
-
 })
 
 }
+
 
 function createCard(item){
 
@@ -152,7 +162,9 @@ div.innerHTML=`
 
 ${sauceHTML}
 
-<button onclick="add('${item.name}',${item.price},'sauce_${item.name}')">Добавить</button>
+<button onclick="add('${item.name}',${item.price},'sauce_${item.name}')">
+Добавить
+</button>
 
 </div>
 
@@ -161,6 +173,7 @@ ${sauceHTML}
 menuDiv.appendChild(div)
 
 }
+
 
 function add(name,price,sauceId){
 
@@ -181,6 +194,7 @@ cart.push({name:name+sauce,price})
 updateCart()
 
 }
+
 
 function updateCart(){
 
@@ -204,7 +218,6 @@ total+=item.price
 })
 
 const totalDiv=document.createElement("p")
-
 totalDiv.innerHTML="<b>Итого: "+total+" VND</b>"
 
 cartDiv.appendChild(totalDiv)
@@ -212,6 +225,7 @@ cartDiv.appendChild(totalDiv)
 document.getElementById("cartCount").innerText=cart.length
 
 }
+
 
 function remove(i){
 
@@ -221,13 +235,16 @@ updateCart()
 
 }
 
+
 function toggleCart(){
 
 const panel=document.getElementById("cartPanel")
 
-panel.style.display = panel.style.display === "block" ? "none" : "block"
+panel.style.display =
+panel.style.display === "block" ? "none" : "block"
 
 }
+
 
 function checkout(){
 
@@ -245,6 +262,7 @@ text+="\nИтого: "+total+" VND"
 Telegram.WebApp.sendData(text)
 
 }
+
 
 renderCategories()
 renderPopular()
