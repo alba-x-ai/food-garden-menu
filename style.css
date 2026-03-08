@@ -100,7 +100,7 @@ background:white;
 }
 
 
-/* СЧЁТЧИК БЛЮДА */
+/* СЧЁТЧИК */
 
 .counter{
 display:flex;
@@ -127,7 +127,7 @@ font-weight:600;
 }
 
 
-/* ЛИПКАЯ ПАНЕЛЬ ЗАКАЗА */
+/* ПАНЕЛЬ ОФОРМЛЕНИЯ */
 
 #checkoutBar{
 position:fixed;
@@ -153,4 +153,14 @@ padding:8px 14px;
 border-radius:8px;
 font-weight:600;
 cursor:pointer;
+}
+
+
+/* АНИМАЦИЯ ПРЫЖКА */
+
+.fly{
+position:fixed;
+z-index:999;
+pointer-events:none;
+transition:all 0.6s cubic-bezier(.25,.8,.25,1);
 }
