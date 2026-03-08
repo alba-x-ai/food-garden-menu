@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Food Garden</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -13,21 +16,30 @@
 
 <body>
 
+<header>
 <h1>🌿 Food Garden</h1>
+</header>
 
 <div id="categories"></div>
 
-<h2>Меню</h2>
-
 <div id="menu"></div>
 
-<h2>🛒 Корзина</h2>
+<div id="cartButton" onclick="toggleCart()">
+🛒 <span id="cartCount">0</span>
+</div>
+
+<div id="cartPanel">
+
+<h2>Ваш заказ</h2>
 
 <div id="cart"></div>
 
-<button class="order" onclick="checkout()">Оформить заказ</button>
+<button class="orderBtn" onclick="checkout()">Оформить заказ</button>
+
+</div>
 
 <script src="app.js"></script>
 
 </body>
+
 </html>
