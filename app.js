@@ -18,41 +18,17 @@ const menu = {
 {name:"Тушёная говядина",price:140},
 {name:"Куриная печень",price:80},
 {name:"Овощное рагу со свининой",price:120},
-{name:"Котлеты свинина-говядина",price:45},
-{name:"Котлеты куриные",price:35}
+{name:"Котлеты свинина-говядина",price:45, sauce:true},
+{name:"Котлеты куриные",price:35, sauce:true}
 ],
 
 "Пельмени":[
-{name:"Пельмени свинина-говядина",price:90},
-{name:"Пельмени курица",price:80}
-],
-
-"Заморозка":[
-{name:"Пельмени свинина-говядина 500г",price:150},
-{name:"Пельмени курица 500г",price:130}
-],
-
-"Соленья":[
-{name:"Огурцы",price:40},
-{name:"Помидоры черри",price:45},
-{name:"Квашеная капуста",price:35}
-],
-
-"Молочные продукты":[
-{name:"Творог",price:80},
-{name:"Сливки",price:50},
-{name:"Сыр",price:65},
-{name:"Сыворотка",price:25}
-],
-
-"Выпечка":[
-{name:"Домашний хлеб",price:55},
-{name:"Ломтик хлеба",price:10},
-{name:"Беляш",price:45}
+{name:"Пельмени свинина-говядина",price:90, sauce:true},
+{name:"Пельмени курица",price:80, sauce:true}
 ],
 
 "Соусы":[
-{name:"Бешамель с чесноком",price:0},
+{name:"Бешамель",price:0},
 {name:"Томатный",price:0},
 {name:"Сметана",price:0},
 {name:"Майонез",price:0},
@@ -61,17 +37,27 @@ const menu = {
 
 }
 
-let cart = []
+const sauces = [
+"Бешамель",
+"Томатный",
+"Сметана",
+"Майонез",
+"Айоли"
+]
 
-const categoriesDiv = document.getElementById("categories")
-const menuDiv = document.getElementById("menu")
-const cartDiv = document.getElementById("cart")
+let cart=[]
+
+const categoriesDiv=document.getElementById("categories")
+const menuDiv=document.getElementById("menu")
+const cartDiv=document.getElementById("cart")
 
 function renderCategories(){
 
 categoriesDiv.innerHTML=""
 
 Object.keys(menu).forEach(cat=>{
+
+if(cat==="Соусы") return
 
 const btn=document.createElement("div")
 btn.className="category"
@@ -94,10 +80,22 @@ menu[category].forEach(item=>{
 const div=document.createElement("div")
 div.className="item"
 
+let sauceHTML=""
+
+if(item.sauce){
+
+sauceHTML=`<select id="sauce_${item.name}">
+<option value="">Соус</option>
+${sauces.map(s=>`<option>${s}</option>`).join("")}
+</select>`
+
+}
+
 div.innerHTML=`
 <h3>${item.name}</h3>
 <p>${item.price} VND</p>
-<button onclick="add('${item.name}',${item.price})">Добавить</button>
+${sauceHTML}
+<button onclick="add('${item.name}',${item.price},'sauce_${item.name}')">Добавить</button>
 `
 
 menuDiv.appendChild(div)
@@ -106,9 +104,29 @@ menuDiv.appendChild(div)
 
 }
 
-function add(name,price){
+function add(name,price,sauceId){
 
-cart.push({name,price})
+let sauce=""
+
+if(sauceId){
+
+const select=document.getElementById(sauceId)
+
+if(select && select.value){
+sauce=" + "+select.value
+}
+
+}
+
+cart.push({name:name+sauce,price})
+
+renderCart()
+
+}
+
+function remove(index){
+
+cart.splice(index,1)
 
 renderCart()
 
@@ -120,18 +138,23 @@ cartDiv.innerHTML=""
 
 let total=0
 
-cart.forEach(i=>{
+cart.forEach((item,index)=>{
 
-const p=document.createElement("p")
-p.innerText=`${i.name} — ${i.price} VND`
+const div=document.createElement("div")
 
-cartDiv.appendChild(p)
+div.innerHTML=`
+${item.name} — ${item.price} VND
+<button onclick="remove(${index})">❌</button>
+`
 
-total+=i.price
+cartDiv.appendChild(div)
+
+total+=item.price
 
 })
 
 const totalDiv=document.createElement("p")
+
 totalDiv.innerHTML="<b>Итого: "+total+" VND</b>"
 
 cartDiv.appendChild(totalDiv)
@@ -139,6 +162,11 @@ cartDiv.appendChild(totalDiv)
 }
 
 function checkout(){
+
+if(cart.length===0){
+alert("Корзина пустая")
+return
+}
 
 let text="Заказ Food Garden\n\n"
 
@@ -152,6 +180,8 @@ total+=i.price
 text+="\nИтого: "+total+" VND"
 
 Telegram.WebApp.sendData(text)
+
+cart=[]
 
 }
 
