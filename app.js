@@ -84,19 +84,7 @@ const btn=document.createElement("div")
 btn.className="category"
 btn.innerText=cat
 
-btn.onclick=()=>{
-
-document.querySelectorAll(".category").forEach(c=>{
-c.classList.remove("active")
-})
-
-btn.classList.add("active")
-
-document.getElementById(cat).scrollIntoView({
-behavior:"smooth"
-})
-
-}
+btn.onclick=()=>renderMenu(cat)
 
 categoriesDiv.appendChild(btn)
 
@@ -113,7 +101,9 @@ Object.keys(menu).forEach(category=>{
 menu[category].forEach(item=>{
 
 if(popular.includes(item.name)){
+
 createCard(item)
+
 }
 
 })
@@ -122,23 +112,13 @@ createCard(item)
 
 }
 
-function renderMenu(){
+function renderMenu(category){
 
 menuDiv.innerHTML=""
 
-Object.keys(menu).forEach(category=>{
-
-const section=document.createElement("div")
-section.id=category
-
-const title=document.createElement("h2")
-title.innerText=category
-
-menuDiv.appendChild(title)
-
 menu[category].forEach(item=>{
+
 createCard(item)
-})
 
 })
 
@@ -224,6 +204,7 @@ total+=item.price
 })
 
 const totalDiv=document.createElement("p")
+
 totalDiv.innerHTML="<b>Итого: "+total+" VND</b>"
 
 cartDiv.appendChild(totalDiv)
@@ -244,8 +225,7 @@ function toggleCart(){
 
 const panel=document.getElementById("cartPanel")
 
-panel.style.display =
-panel.style.display === "block" ? "none" : "block"
+panel.style.display = panel.style.display === "block" ? "none" : "block"
 
 }
 
@@ -266,35 +246,5 @@ Telegram.WebApp.sendData(text)
 
 }
 
-function updateActiveCategory(){
-
-const sections=document.querySelectorAll("#menu h2")
-
-sections.forEach(section=>{
-
-const rect=section.getBoundingClientRect()
-
-if(rect.top < 120 && rect.bottom > 120){
-
-document.querySelectorAll(".category").forEach(c=>{
-c.classList.remove("active")
-})
-
-const activeBtn=[...document.querySelectorAll(".category")]
-.find(btn=>btn.innerText===section.innerText)
-
-if(activeBtn){
-activeBtn.classList.add("active")
-}
-
-}
-
-})
-
-}
-
-window.addEventListener("scroll",updateActiveCategory)
-
 renderCategories()
-renderMenu()
 renderPopular()
