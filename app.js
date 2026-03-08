@@ -27,7 +27,7 @@ const menu = {
 {name:"Пельмени курица",price:80,img:"https://images.unsplash.com/photo-1604908177194-21c2a6c9c1b1",sauce:true}
 ],
 
-"Заморозка":[
+"Заморозка (предзаказ)":[
 {name:"Пельмени свинина-говядина 500г",price:150,img:"https://images.unsplash.com/photo-1604908177194-21c2a6c9c1b1"},
 {name:"Пельмени курица 500г",price:130,img:"https://images.unsplash.com/photo-1604908177194-21c2a6c9c1b1"}
 ],
@@ -213,3 +213,4 @@ Telegram.WebApp.sendData(text)
 }
 
 renderCategories()
+
