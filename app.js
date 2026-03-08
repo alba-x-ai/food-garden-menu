@@ -66,6 +66,7 @@ let cart={}
 const categoriesDiv=document.getElementById("categories")
 const menuDiv=document.getElementById("menu")
 
+
 function renderCategories(){
 
 categoriesDiv.innerHTML=""
@@ -93,6 +94,7 @@ categoriesDiv.appendChild(btn)
 })
 
 }
+
 
 function renderMenu(category){
 
@@ -128,11 +130,11 @@ ${sauceHTML}
 
 <div class="counter">
 
-<button onclick="minus('${item.name}',${item.price})">−</button>
+<button onclick="minus('${item.name}')">−</button>
 
 <span id="count_${item.name}">0</span>
 
-<button onclick="plus('${item.name}',${item.price},'sauce_${item.name}')">+</button>
+<button onclick="plus('${item.name}',${item.price},'sauce_${item.name}',this)">+</button>
 
 </div>
 
@@ -145,7 +147,8 @@ menuDiv.appendChild(div)
 
 }
 
-function plus(name,price,sauceId){
+
+function plus(name,price,sauceId,btn){
 
 let sauce=""
 
@@ -168,10 +171,12 @@ cart[key]={name:key,price:price,count:0}
 cart[key].count++
 
 updateItem(name)
-
 updateCheckout()
 
+flyToCart(btn)
+
 }
+
 
 function minus(name){
 
@@ -190,10 +195,10 @@ delete cart[key]
 })
 
 updateItem(name)
-
 updateCheckout()
 
 }
+
 
 function updateItem(name){
 
@@ -212,6 +217,7 @@ el.innerText=count
 }
 
 }
+
 
 function updateCheckout(){
 
@@ -237,6 +243,38 @@ bar.style.display="flex"
 
 }
 
+
+function flyToCart(btn){
+
+const rect=btn.getBoundingClientRect()
+
+const fly=document.createElement("div")
+fly.className="fly"
+fly.innerText="🍲"
+
+fly.style.left=rect.left+"px"
+fly.style.top=rect.top+"px"
+
+document.body.appendChild(fly)
+
+setTimeout(()=>{
+
+const cart=document.getElementById("checkoutBar")
+const cartRect=cart.getBoundingClientRect()
+
+fly.style.left=cartRect.left+"px"
+fly.style.top=cartRect.top+"px"
+fly.style.opacity=0
+
+},10)
+
+setTimeout(()=>{
+fly.remove()
+},600)
+
+}
+
+
 function checkout(){
 
 let text="Заказ Food Garden\n\n"
@@ -256,6 +294,7 @@ text+="\nИтого: "+total+" VND"
 Telegram.WebApp.sendData(text)
 
 }
+
 
 renderCategories()
 renderMenu(Object.keys(menu)[0])
