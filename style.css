@@ -1,32 +1,59 @@
 body{
-font-family:Arial;
+font-family:Arial, sans-serif;
 margin:0;
 background:#f3f3f3;
 }
 
+
+/* HEADER */
+
 header{
-padding:15px;
+padding:14px;
 text-align:center;
 background:white;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
+h1{
+margin:0;
+font-size:20px;
+color:#2e7d32;
+}
+
+
+/* КАТЕГОРИИ */
+
 #categories{
 display:flex;
 overflow-x:auto;
-gap:10px;
+gap:8px;
 padding:10px;
 background:white;
+position:sticky;
+top:0;
+z-index:10;
+border-bottom:1px solid #eee;
 }
 
 .category{
-background:#4CAF50;
-color:white;
-padding:6px 12px;
-border-radius:20px;
+padding:6px 14px;
+border-radius:18px;
+background:#f1f1f1;
+color:#444;
 white-space:nowrap;
 cursor:pointer;
+font-size:14px;
+transition:0.2s;
 }
+
+.category.active{
+background:#4CAF50;
+color:white;
+font-weight:600;
+}
+
+
+/* МЕНЮ */
 
 #menu{
 display:grid;
@@ -35,17 +62,13 @@ gap:12px;
 padding:12px;
 }
 
+
+/* КАРТОЧКА БЛЮДА */
+
 .item{
 background:white;
 border-radius:12px;
-overflow:hidden;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.item img{
-width:100%;
-height:120px;
-object-fit:cover;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
 .itemContent{
@@ -55,12 +78,29 @@ padding:10px;
 .item h3{
 margin:0;
 font-size:14px;
+margin-bottom:4px;
 }
 
 .price{
 color:#4CAF50;
 font-weight:bold;
+margin-bottom:6px;
 }
+
+
+/* SELECT СОУСОВ */
+
+select{
+width:100%;
+padding:5px;
+margin-bottom:6px;
+border-radius:6px;
+border:1px solid #ccc;
+background:white;
+}
+
+
+/* КНОПКИ */
 
 button{
 background:#4CAF50;
@@ -68,9 +108,17 @@ color:white;
 border:none;
 padding:6px 10px;
 border-radius:6px;
-margin-top:5px;
 cursor:pointer;
+font-size:13px;
+transition:0.15s;
 }
+
+button:hover{
+background:#43a047;
+}
+
+
+/* КНОПКА КОРЗИНЫ */
 
 #cartButton{
 position:fixed;
@@ -81,9 +129,12 @@ color:white;
 padding:12px 16px;
 border-radius:30px;
 font-size:18px;
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
+box-shadow:0 6px 16px rgba(0,0,0,0.25);
 cursor:pointer;
 }
+
+
+/* ПАНЕЛЬ КОРЗИНЫ */
 
 #cartPanel{
 position:fixed;
@@ -96,12 +147,25 @@ padding:15px;
 display:none;
 overflow:auto;
 border-radius:20px 20px 0 0;
-box-shadow:0 -5px 15px rgba(0,0,0,0.2);
+box-shadow:0 -5px 20px rgba(0,0,0,0.2);
 }
+
+#cartPanel h2{
+margin-top:0;
+}
+
+#cart{
+margin-top:10px;
+}
+
+
+/* КНОПКА ОФОРМЛЕНИЯ */
 
 .orderBtn{
 width:100%;
 margin-top:10px;
 padding:12px;
 font-size:16px;
+background:#2e7d32;
+border-radius:8px;
 }
