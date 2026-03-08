@@ -53,14 +53,7 @@ const menu = {
 
 }
 
-const popular = [
-"Борщ",
-"Пельмени свинина-говядина",
-"Беляш",
-"Котлеты куриные"
-]
-
-const sauces = [
+const sauces=[
 "Бешамель с чесноком",
 "Томатный",
 "Сметана",
@@ -68,12 +61,10 @@ const sauces = [
 "Айоли"
 ]
 
-let cart = []
+let cart={}
 
-const categoriesDiv = document.getElementById("categories")
-const menuDiv = document.getElementById("menu")
-const cartDiv = document.getElementById("cart")
-
+const categoriesDiv=document.getElementById("categories")
+const menuDiv=document.getElementById("menu")
 
 function renderCategories(){
 
@@ -103,38 +94,11 @@ categoriesDiv.appendChild(btn)
 
 }
 
-
-function renderPopular(){
-
-menuDiv.innerHTML=""
-
-Object.keys(menu).forEach(category=>{
-
-menu[category].forEach(item=>{
-
-if(popular.includes(item.name)){
-createCard(item)
-}
-
-})
-
-})
-
-}
-
-
 function renderMenu(category){
 
 menuDiv.innerHTML=""
 
 menu[category].forEach(item=>{
-createCard(item)
-})
-
-}
-
-
-function createCard(item){
 
 const div=document.createElement("div")
 div.className="item"
@@ -156,26 +120,32 @@ div.innerHTML=`
 
 <div class="itemContent">
 
-<h3>${popular.includes(item.name) ? "🔥 " : ""}${item.name}</h3>
+<h3>${item.name}</h3>
 
 <div class="price">${item.price} VND</div>
 
 ${sauceHTML}
 
-<button onclick="add('${item.name}',${item.price},'sauce_${item.name}')">
-Добавить
-</button>
+<div class="counter">
+
+<button onclick="minus('${item.name}',${item.price})">−</button>
+
+<span id="count_${item.name}">0</span>
+
+<button onclick="plus('${item.name}',${item.price},'sauce_${item.name}')">+</button>
 
 </div>
 
+</div>
 `
 
 menuDiv.appendChild(div)
 
+})
+
 }
 
-
-function add(name,price,sauceId){
+function plus(name,price,sauceId){
 
 let sauce=""
 
@@ -189,62 +159,83 @@ sauce=" + "+select.value
 
 }
 
-cart.push({name:name+sauce,price})
+const key=name+sauce
 
-updateCart()
+if(!cart[key]){
+cart[key]={name:key,price:price,count:0}
+}
+
+cart[key].count++
+
+updateItem(name)
+
+updateCheckout()
 
 }
 
+function minus(name){
 
-function updateCart(){
+Object.keys(cart).forEach(key=>{
 
-cartDiv.innerHTML=""
+if(key.startsWith(name)){
 
-let total=0
+cart[key].count--
 
-cart.forEach((item,i)=>{
+if(cart[key].count<=0){
+delete cart[key]
+}
 
-const div=document.createElement("div")
-
-div.innerHTML=`
-${item.name} — ${item.price} VND
-<button onclick="remove(${i})">❌</button>
-`
-
-cartDiv.appendChild(div)
-
-total+=item.price
+}
 
 })
 
-const totalDiv=document.createElement("p")
-totalDiv.innerHTML="<b>Итого: "+total+" VND</b>"
+updateItem(name)
 
-cartDiv.appendChild(totalDiv)
-
-document.getElementById("cartCount").innerText=cart.length
+updateCheckout()
 
 }
 
+function updateItem(name){
 
-function remove(i){
+let count=0
 
-cart.splice(i,1)
+Object.values(cart).forEach(i=>{
+if(i.name.startsWith(name)){
+count+=i.count
+}
+})
 
-updateCart()
+const el=document.getElementById("count_"+name)
+
+if(el){
+el.innerText=count
+}
 
 }
 
+function updateCheckout(){
 
-function toggleCart(){
+let total=0
+let items=0
 
-const panel=document.getElementById("cartPanel")
+Object.values(cart).forEach(i=>{
+total+=i.price*i.count
+items+=i.count
+})
 
-panel.style.display =
-panel.style.display === "block" ? "none" : "block"
+const bar=document.getElementById("checkoutBar")
+const info=document.getElementById("checkoutInfo")
 
+if(items===0){
+bar.style.display="none"
+return
 }
 
+info.innerText=`${items} блюда • ${total} VND`
+
+bar.style.display="flex"
+
+}
 
 function checkout(){
 
@@ -252,9 +243,12 @@ let text="Заказ Food Garden\n\n"
 
 let total=0
 
-cart.forEach(i=>{
-text+=`${i.name} — ${i.price} VND\n`
-total+=i.price
+Object.values(cart).forEach(i=>{
+
+text+=`${i.name} x${i.count} — ${i.price*i.count} VND\n`
+
+total+=i.price*i.count
+
 })
 
 text+="\nИтого: "+total+" VND"
@@ -263,6 +257,5 @@ Telegram.WebApp.sendData(text)
 
 }
 
-
 renderCategories()
-renderPopular()
+renderMenu(Object.keys(menu)[0])
