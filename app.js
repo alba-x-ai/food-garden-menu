@@ -2,43 +2,59 @@ const menu = {
 
 "Супы":[
 {name:"Борщ",price:70},
-{name:"Солянка",price:90},
-{name:"Гороховый суп",price:80},
-{name:"Куриный суп",price:70}
+{name:"Сборная мясная солянка",price:90},
+{name:"Гороховый суп с копченостями",price:80},
+{name:"Куриный суп с клецками",price:70}
 ],
 
 "Гарниры":[
-{name:"Спагетти",price:30},
-{name:"Рис",price:20},
-{name:"Гречка",price:40}
+{name:"Спагетти",price:30,sauce:true},
+{name:"Рис",price:20,sauce:true},
+{name:"Гречка",price:40,sauce:true}
 ],
 
 "Горячие блюда":[
 {name:"Тушёная свинина",price:100},
-{name:"Тушёная говядина",price:140},
-{name:"Куриная печень",price:80},
+{name:"Тушёная говядина в томате",price:140},
+{name:"Тушёная куриная печень с луком и морковью",price:80},
 {name:"Овощное рагу со свининой",price:120},
-{name:"Котлеты свинина-говядина",price:45, sauce:true},
-{name:"Котлеты куриные",price:35, sauce:true}
+{name:"Котлеты свинино-говяжьи",price:45,sauce:true},
+{name:"Котлеты куриные",price:35,sauce:true}
 ],
 
 "Пельмени":[
-{name:"Пельмени свинина-говядина",price:90, sauce:true},
-{name:"Пельмени курица",price:80, sauce:true}
+{name:"Пельмени свинина-говядина",price:90,sauce:true},
+{name:"Пельмени курица",price:80,sauce:true}
 ],
 
-"Соусы":[
-{name:"Бешамель",price:0},
-{name:"Томатный",price:0},
-{name:"Сметана",price:0},
-{name:"Майонез",price:0},
-{name:"Айоли",price:0}
+"Заморозка":[
+{name:"Пельмени свинина-говядина 500г",price:150},
+{name:"Пельмени курица 500г",price:130}
+],
+
+"Соленья":[
+{name:"Огурцы",price:40},
+{name:"Помидоры черри",price:45},
+{name:"Квашеная капуста",price:35}
+],
+
+"Молочные продукты":[
+{name:"Творог",price:80},
+{name:"Сливки",price:50},
+{name:"Сыр",price:65},
+{name:"Сыворотка 500г",price:25}
+],
+
+"Выпечка":[
+{name:"Домашний хлеб",price:55},
+{name:"Домашний хлеб ломтик",price:10},
+{name:"Беляш",price:45}
 ]
 
 }
 
-const sauces = [
-"Бешамель",
+const sauces=[
+"Бешамель с чесноком",
 "Томатный",
 "Сметана",
 "Майонез",
@@ -56,8 +72,6 @@ function renderCategories(){
 categoriesDiv.innerHTML=""
 
 Object.keys(menu).forEach(cat=>{
-
-if(cat==="Соусы") return
 
 const btn=document.createElement("div")
 btn.className="category"
@@ -84,10 +98,12 @@ let sauceHTML=""
 
 if(item.sauce){
 
-sauceHTML=`<select id="sauce_${item.name}">
+sauceHTML=`
+<select id="sauce_${item.name}">
 <option value="">Соус</option>
 ${sauces.map(s=>`<option>${s}</option>`).join("")}
-</select>`
+</select>
+`
 
 }
 
@@ -154,7 +170,6 @@ total+=item.price
 })
 
 const totalDiv=document.createElement("p")
-
 totalDiv.innerHTML="<b>Итого: "+total+" VND</b>"
 
 cartDiv.appendChild(totalDiv)
@@ -182,6 +197,8 @@ text+="\nИтого: "+total+" VND"
 Telegram.WebApp.sendData(text)
 
 cart=[]
+
+renderCart()
 
 }
 
