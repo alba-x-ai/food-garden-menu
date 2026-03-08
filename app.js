@@ -53,6 +53,13 @@ const menu = {
 
 }
 
+const popular = [
+"Борщ",
+"Пельмени свинина-говядина",
+"Беляш",
+"Котлеты куриные"
+]
+
 const sauces=[
 "Бешамель с чесноком",
 "Томатный",
@@ -82,11 +89,39 @@ categoriesDiv.appendChild(btn)
 
 }
 
+function renderPopular(){
+
+menuDiv.innerHTML=""
+
+Object.keys(menu).forEach(category=>{
+
+menu[category].forEach(item=>{
+
+if(popular.includes(item.name)){
+
+createCard(item)
+
+}
+
+})
+
+})
+
+}
+
 function renderMenu(category){
 
 menuDiv.innerHTML=""
 
 menu[category].forEach(item=>{
+
+createCard(item)
+
+})
+
+}
+
+function createCard(item){
 
 const div=document.createElement("div")
 div.className="item"
@@ -110,7 +145,7 @@ div.innerHTML=`
 
 <div class="itemContent">
 
-<h3>${item.name}</h3>
+<h3>${popular.includes(item.name) ? "🔥 " : ""}${item.name}</h3>
 
 <div class="price">${item.price} VND</div>
 
@@ -123,8 +158,6 @@ ${sauceHTML}
 `
 
 menuDiv.appendChild(div)
-
-})
 
 }
 
@@ -213,4 +246,4 @@ Telegram.WebApp.sendData(text)
 }
 
 renderCategories()
-
+renderPopular()
