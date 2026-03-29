@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Food Garden</title>
+<title>Privet Kitchen</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -16,27 +16,22 @@
 
 <body>
 
-<header>
-<h1>🌿 Food Garden</h1>
-</header>
+<h1>Privet Kitchen</h1>
 
-<div id="categories"></div>
+<div id="setInfo">
+
+Готовое меню на 2 дня с доставкой<br><br>
+
+📅 Доставка: Понедельник / Среда / Пятница<br>
+👨‍🍳 Готовим: Воскресенье / Вторник / Четверг<br>
+🚫 Суббота — выходной<br><br>
+
+📦 Доставка с 8:00 до 12:00<br>
+💰 Оплата при получении
+
+</div>
 
 <div id="menu"></div>
-
-<div id="cartButton" onclick="toggleCart()">
-🛒 <span id="cartCount">0</span>
-</div>
-
-<div id="cartPanel">
-
-<h2>Ваш заказ</h2>
-
-<div id="cart"></div>
-
-<button class="orderBtn" onclick="checkout()">Оформить заказ</button>
-
-</div>
 
 <script src="app.js"></script>
 
