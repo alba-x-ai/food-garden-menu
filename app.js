@@ -1,11 +1,9 @@
-const LIMIT = 15
-
 const sets = [
 
 {
 day:"Понедельник",
 price:895000,
-spots:15,
+spots:0,
 menu:[
 "Хлеб пшеничный с зирой",
 "Салат «Витаминный»",
@@ -21,7 +19,7 @@ menu:[
 {
 day:"Среда",
 price:925000,
-spots:15,
+spots:0,
 menu:[
 "Хлеб пшеничный с орегано",
 "Салат «Летний»",
@@ -37,7 +35,7 @@ menu:[
 {
 day:"Пятница",
 price:967000,
-spots:15,
+spots:0,
 menu:[
 "Хлеб пшеничный с грецкими орехами и семенами чиа и льна",
 "Свекольный салат с грецким орехом, чесноком и изюмом",
@@ -52,20 +50,46 @@ menu:[
 
 ]
 
-const container=document.getElementById("menu")
+const LIMIT = 15
+
+const container = document.getElementById("menu")
+
+
+
+async function loadSpots(){
+
+try{
+
+const res = await fetch("http://YOUR_SERVER_IP:8080/spots")
+
+const data = await res.json()
+
+sets.forEach(set=>{
+set.spots = data[set.day] || 0
+})
+
+}catch(e){
+
+console.log("spots error",e)
+
+}
+
+}
+
+
 
 function renderSets(){
 
-container.innerHTML=""
+container.innerHTML = ""
 
 sets.forEach((set,i)=>{
 
-const soldOut=set.spots<=0
+const soldOut = set.spots <= 0
 
-const card=document.createElement("div")
-card.className="setCard"
+const card = document.createElement("div")
+card.className = "setCard"
 
-card.innerHTML=`
+card.innerHTML = `
 
 <h2>${set.day}</h2>
 
@@ -77,8 +101,8 @@ ${set.price.toLocaleString()} ₫
 ${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
 </div>
 
-<button ${soldOut ? "disabled" : ""} onclick="openSet(${i})">
-${soldOut ? "Недоступно" : "Посмотреть меню"}
+<button ${soldOut ? "disabled":""} onclick="openSet(${i})">
+${soldOut ? "Недоступно":"Посмотреть меню"}
 </button>
 
 `
@@ -89,15 +113,17 @@ container.appendChild(card)
 
 }
 
+
+
 function openSet(index){
 
-const set=sets[index]
+const set = sets[index]
 
-const soldOut=set.spots<=0
+const soldOut = set.spots <= 0
 
-const menuItems=set.menu.map(i=>`<li>${i}</li>`).join("")
+const menuItems = set.menu.map(i=>`<li>${i}</li>`).join("")
 
-container.innerHTML=`
+container.innerHTML = `
 
 <div class="setFull">
 
@@ -112,11 +138,11 @@ ${set.price.toLocaleString()} ₫
 </div>
 
 <div class="spots">
-${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
+${soldOut ? "Sold Out":"Осталось мест: "+set.spots+" / "+LIMIT}
 </div>
 
-<button class="orderBtn" ${soldOut ? "disabled" : ""} onclick="orderSet(${index})">
-${soldOut ? "Недоступно" : "Заказать"}
+<button class="orderBtn" ${soldOut ? "disabled":""} onclick="orderSet(${index})">
+${soldOut ? "Недоступно":"Заказать"}
 </button>
 
 <button class="backBtn" onclick="renderSets()">
@@ -129,25 +155,26 @@ ${soldOut ? "Недоступно" : "Заказать"}
 
 }
 
+
+
 function orderSet(index){
 
-const set=sets[index]
+const set = sets[index]
 
-if(set.spots<=0) return
+Telegram.WebApp.sendData(set.day)
 
-set.spots--
+}
 
-let text=`
-Заказ Privet Kitchen
 
-Сет: ${set.day}
-Цена: ${set.price.toLocaleString()} ₫
-`
 
-Telegram.WebApp.sendData(text)
+async function init(){
+
+await loadSpots()
 
 renderSets()
 
 }
 
-renderSets()
+
+
+init()
