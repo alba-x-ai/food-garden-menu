@@ -1,300 +1,128 @@
-const menu = {
+const sets = [
 
-"Супы":[
-{name:"Борщ",price:70},
-{name:"Сборная мясная солянка",price:90},
-{name:"Гороховый суп с копченостями",price:80},
-{name:"Куриный суп с клецками",price:70}
-],
-
-"Гарниры":[
-{name:"Спагетти",price:30,sauce:true},
-{name:"Рис",price:20,sauce:true},
-{name:"Гречка",price:40,sauce:true}
-],
-
-"Горячие блюда":[
-{name:"Тушёная свинина",price:100},
-{name:"Тушёная говядина в томате",price:140},
-{name:"Тушёная куриная печень с луком и морковью",price:80},
-{name:"Овощное рагу со свининой",price:120},
-{name:"Котлеты свинино-говяжьи",price:45,sauce:true},
-{name:"Котлеты куриные",price:35,sauce:true}
-],
-
-"Пельмени":[
-{name:"Пельмени свинина-говядина",price:90,sauce:true},
-{name:"Пельмени курица",price:80,sauce:true}
-],
-
-"Заморозка (предзаказ)":[
-{name:"Пельмени свинина-говядина 500г",price:150},
-{name:"Пельмени курица 500г",price:130}
-],
-
-"Соленья":[
-{name:"Огурцы",price:40},
-{name:"Помидоры черри",price:45},
-{name:"Квашеная капуста",price:35}
-],
-
-"Молочные продукты":[
-{name:"Творог",price:80},
-{name:"Сливки",price:50},
-{name:"Сыр",price:65},
-{name:"Сыворотка 500г",price:25}
-],
-
-"Выпечка":[
-{name:"Домашний хлеб",price:55},
-{name:"Домашний хлеб ломтик",price:10},
-{name:"Беляш",price:45}
+{
+day:"Понедельник",
+price:895000,
+menu:[
+"Хлеб пшеничный с зирой",
+"Салат «Витаминный»",
+"Каша гречневая с грибами и луком",
+"Борщ",
+"Гороховый суп",
+"Говядина тушёная с картофельным пюре",
+"Куриная печень с рисом",
+"Солёные огурцы"
 ]
+},
 
+{
+day:"Среда",
+price:925000,
+menu:[
+"Хлеб пшеничный с орегано",
+"Салат «Летний»",
+"Перловая каша с грибами и луком",
+"Солянка",
+"Щи",
+"Котлета свиная/говяжья с гречкой",
+"Котлета куриная с овощной смесью",
+"Квашеная капуста"
+]
+},
+
+{
+day:"Пятница",
+price:967000,
+menu:[
+"Хлеб пшеничный с грецкими орехами и семенами чиа и льна",
+"Свекольный салат с грецким орехом, чесноком и изюмом",
+"Гороховая каша с грибами и луком",
+"Куриный суп с сухариками",
+"Суп «Рассольник»",
+"Курица запечённая с лапшой",
+"Свиные рёбра с тушёной капустой",
+"Маринованные помидоры"
+]
 }
 
-const sauces=[
-"Бешамель с чесноком",
-"Томатный",
-"Сметана",
-"Майонез",
-"Айоли"
 ]
 
-let cart={}
+const container=document.getElementById("menu")
 
-const categoriesDiv=document.getElementById("categories")
-const menuDiv=document.getElementById("menu")
+function renderSets(){
 
+container.innerHTML=""
 
-function renderCategories(){
+sets.forEach((set,i)=>{
 
-categoriesDiv.innerHTML=""
+const card=document.createElement("div")
+card.className="setCard"
 
-Object.keys(menu).forEach(cat=>{
+card.innerHTML=`
 
-const btn=document.createElement("div")
-btn.className="category"
-btn.innerText=cat
+<h2>${set.day}</h2>
 
-btn.onclick=()=>{
+<div class="price">${set.price.toLocaleString()} ₫</div>
 
-document.querySelectorAll(".category").forEach(c=>{
-c.classList.remove("active")
-})
+<button onclick="openSet(${i})">
+Посмотреть меню
+</button>
 
-btn.classList.add("active")
+`
 
-renderMenu(cat)
-
-}
-
-categoriesDiv.appendChild(btn)
+container.appendChild(card)
 
 })
 
 }
 
+function openSet(index){
 
-function renderMenu(category){
+const set=sets[index]
 
-menuDiv.innerHTML=""
+container.innerHTML=""
 
-menu[category].forEach(item=>{
+const menuItems=set.menu.map(i=>`<li>${i}</li>`).join("")
 
-const div=document.createElement("div")
-div.className="item"
+container.innerHTML=`
 
-let sauceHTML=""
+<div class="setFull">
 
-if(item.sauce){
+<h2>${set.day}</h2>
 
-sauceHTML=`
-<select id="sauce_${item.name}">
-<option value="">Соус</option>
-${sauces.map(s=>`<option>${s}</option>`).join("")}
-</select>
+<ul>
+${menuItems}
+</ul>
+
+<div class="priceBig">
+${set.price.toLocaleString()} ₫
+</div>
+
+<button class="orderBtn" onclick="orderSet('${set.day}',${set.price})">
+Заказать
+</button>
+
+<button class="backBtn" onclick="renderSets()">
+← Назад
+</button>
+
+</div>
+
 `
 
 }
 
-div.innerHTML=`
+function orderSet(day,price){
 
-<div class="itemContent">
+let text=`
+Заказ Privet Kitchen
 
-<h3>${item.name}</h3>
-
-<div class="price">${item.price} VND</div>
-
-${sauceHTML}
-
-<div class="counter">
-
-<button onclick="minus('${item.name}')">−</button>
-
-<span id="count_${item.name}">0</span>
-
-<button onclick="plus('${item.name}',${item.price},'sauce_${item.name}',this)">+</button>
-
-</div>
-
-</div>
+Сет: ${day}
+Цена: ${price} ₫
 `
-
-menuDiv.appendChild(div)
-
-})
-
-}
-
-
-function plus(name,price,sauceId,btn){
-
-let sauce=""
-
-if(sauceId){
-
-const select=document.getElementById(sauceId)
-
-if(select && select.value){
-sauce=" + "+select.value
-}
-
-}
-
-const key=name+sauce
-
-if(!cart[key]){
-cart[key]={name:key,price:price,count:0}
-}
-
-cart[key].count++
-
-updateItem(name)
-updateCheckout()
-
-flyToCart(btn)
-
-}
-
-
-function minus(name){
-
-Object.keys(cart).forEach(key=>{
-
-if(key.startsWith(name)){
-
-cart[key].count--
-
-if(cart[key].count<=0){
-delete cart[key]
-}
-
-}
-
-})
-
-updateItem(name)
-updateCheckout()
-
-}
-
-
-function updateItem(name){
-
-let count=0
-
-Object.values(cart).forEach(i=>{
-if(i.name.startsWith(name)){
-count+=i.count
-}
-})
-
-const el=document.getElementById("count_"+name)
-
-if(el){
-el.innerText=count
-}
-
-}
-
-
-function updateCheckout(){
-
-let total=0
-let items=0
-
-Object.values(cart).forEach(i=>{
-total+=i.price*i.count
-items+=i.count
-})
-
-const bar=document.getElementById("checkoutBar")
-const info=document.getElementById("checkoutInfo")
-
-if(items===0){
-bar.style.display="none"
-return
-}
-
-info.innerText=`${items} блюда • ${total} VND`
-
-bar.style.display="flex"
-
-}
-
-
-function flyToCart(btn){
-
-const rect=btn.getBoundingClientRect()
-
-const fly=document.createElement("div")
-fly.className="fly"
-fly.innerText="🍲"
-
-fly.style.left=rect.left+"px"
-fly.style.top=rect.top+"px"
-
-document.body.appendChild(fly)
-
-setTimeout(()=>{
-
-const cart=document.getElementById("checkoutBar")
-const cartRect=cart.getBoundingClientRect()
-
-fly.style.left=cartRect.left+"px"
-fly.style.top=cartRect.top+"px"
-fly.style.opacity=0
-
-},10)
-
-setTimeout(()=>{
-fly.remove()
-},600)
-
-}
-
-
-function checkout(){
-
-let text="Заказ Food Garden\n\n"
-
-let total=0
-
-Object.values(cart).forEach(i=>{
-
-text+=`${i.name} x${i.count} — ${i.price*i.count} VND\n`
-
-total+=i.price*i.count
-
-})
-
-text+="\nИтого: "+total+" VND"
 
 Telegram.WebApp.sendData(text)
 
 }
 
-
-renderCategories()
-renderMenu(Object.keys(menu)[0])
+renderSets()
