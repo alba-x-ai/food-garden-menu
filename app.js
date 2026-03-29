@@ -1,8 +1,11 @@
+const LIMIT = 15
+
 const sets = [
 
 {
 day:"Понедельник",
 price:895000,
+spots:15,
 menu:[
 "Хлеб пшеничный с зирой",
 "Салат «Витаминный»",
@@ -18,6 +21,7 @@ menu:[
 {
 day:"Среда",
 price:925000,
+spots:15,
 menu:[
 "Хлеб пшеничный с орегано",
 "Салат «Летний»",
@@ -33,6 +37,7 @@ menu:[
 {
 day:"Пятница",
 price:967000,
+spots:15,
 menu:[
 "Хлеб пшеничный с грецкими орехами и семенами чиа и льна",
 "Свекольный салат с грецким орехом, чесноком и изюмом",
@@ -55,6 +60,8 @@ container.innerHTML=""
 
 sets.forEach((set,i)=>{
 
+const soldOut=set.spots<=0
+
 const card=document.createElement("div")
 card.className="setCard"
 
@@ -62,10 +69,16 @@ card.innerHTML=`
 
 <h2>${set.day}</h2>
 
-<div class="price">${set.price.toLocaleString()} ₫</div>
+<div class="price">
+${set.price.toLocaleString()} ₫
+</div>
 
-<button onclick="openSet(${i})">
-Посмотреть меню
+<div class="spots">
+${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
+</div>
+
+<button ${soldOut ? "disabled" : ""} onclick="openSet(${i})">
+${soldOut ? "Недоступно" : "Посмотреть меню"}
 </button>
 
 `
@@ -80,7 +93,7 @@ function openSet(index){
 
 const set=sets[index]
 
-container.innerHTML=""
+const soldOut=set.spots<=0
 
 const menuItems=set.menu.map(i=>`<li>${i}</li>`).join("")
 
@@ -98,8 +111,12 @@ ${menuItems}
 ${set.price.toLocaleString()} ₫
 </div>
 
-<button class="orderBtn" onclick="orderSet('${set.day}',${set.price})">
-Заказать
+<div class="spots">
+${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
+</div>
+
+<button class="orderBtn" ${soldOut ? "disabled" : ""} onclick="orderSet(${index})">
+${soldOut ? "Недоступно" : "Заказать"}
 </button>
 
 <button class="backBtn" onclick="renderSets()">
@@ -112,16 +129,24 @@ ${set.price.toLocaleString()} ₫
 
 }
 
-function orderSet(day,price){
+function orderSet(index){
+
+const set=sets[index]
+
+if(set.spots<=0) return
+
+set.spots--
 
 let text=`
 Заказ Privet Kitchen
 
-Сет: ${day}
-Цена: ${price} ₫
+Сет: ${set.day}
+Цена: ${set.price.toLocaleString()} ₫
 `
 
 Telegram.WebApp.sendData(text)
+
+renderSets()
 
 }
 
