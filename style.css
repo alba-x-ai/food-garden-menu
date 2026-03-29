@@ -90,3 +90,14 @@ width:100%;
 background:#ddd;
 color:#333;
 }
+
+.spots{
+margin-bottom:10px;
+font-size:14px;
+color:#555;
+}
+
+button:disabled{
+background:#bbb;
+cursor:not-allowed;
+}
