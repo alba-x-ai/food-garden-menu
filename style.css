@@ -2,165 +2,91 @@ body{
 font-family:Arial, sans-serif;
 margin:0;
 background:#f3f3f3;
-}
-
-
-/* HEADER */
-
-header{
-padding:14px;
-text-align:center;
-background:white;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+padding:16px;
 }
 
 h1{
-margin:0;
-font-size:20px;
+text-align:center;
+margin-bottom:20px;
 color:#2e7d32;
 }
 
-
-/* КАТЕГОРИИ */
-
-#categories{
-display:flex;
-overflow-x:auto;
-gap:8px;
-padding:10px;
-background:white;
-position:sticky;
-top:0;
-z-index:10;
-border-bottom:1px solid #eee;
-}
-
-.category{
-padding:6px 14px;
-border-radius:18px;
-background:#f1f1f1;
-color:#444;
-white-space:nowrap;
-cursor:pointer;
+#setInfo{
+text-align:center;
+margin-bottom:20px;
 font-size:14px;
-transition:0.2s;
+color:#555;
 }
-
-.category.active{
-background:#4CAF50;
-color:white;
-font-weight:600;
-}
-
-
-/* МЕНЮ */
 
 #menu{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-padding:12px;
+display:flex;
+flex-direction:column;
+gap:16px;
 }
 
-
-/* КАРТОЧКА БЛЮДА */
-
-.item{
+.setCard{
 background:white;
-border-radius:12px;
-box-shadow:0 2px 6px rgba(0,0,0,0.08);
+border-radius:14px;
+padding:16px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
 }
 
-.itemContent{
-padding:10px;
-}
-
-.item h3{
-margin:0;
-font-size:14px;
-margin-bottom:4px;
+.setCard h2{
+margin:0 0 10px 0;
 }
 
 .price{
-color:#4CAF50;
-font-weight:bold;
-margin-bottom:6px;
+font-size:18px;
+font-weight:600;
+color:#2e7d32;
+margin-bottom:10px;
 }
 
-
-/* СОУСЫ */
-
-select{
-width:100%;
-padding:5px;
-margin-bottom:6px;
-border-radius:6px;
-border:1px solid #ccc;
-background:white;
-}
-
-
-/* СЧЁТЧИК */
-
-.counter{
-display:flex;
-align-items:center;
-gap:8px;
-margin-top:6px;
-}
-
-.counter button{
-width:28px;
-height:28px;
-border-radius:50%;
-font-size:16px;
+button{
 background:#4CAF50;
 color:white;
 border:none;
-cursor:pointer;
-}
-
-.counter span{
-min-width:20px;
-text-align:center;
-font-weight:600;
-}
-
-
-/* ПАНЕЛЬ ОФОРМЛЕНИЯ */
-
-#checkoutBar{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#2e7d32;
-color:white;
-display:none;
-align-items:center;
-justify-content:space-between;
-padding:14px 16px;
-font-size:16px;
-font-weight:600;
-z-index:20;
-}
-
-#checkoutBar button{
-background:white;
-color:#2e7d32;
-border:none;
-padding:8px 14px;
+padding:10px 14px;
 border-radius:8px;
-font-weight:600;
 cursor:pointer;
 }
 
+button:hover{
+background:#43a047;
+}
 
-/* АНИМАЦИЯ ПРЫЖКА */
+.setFull{
+background:white;
+border-radius:16px;
+padding:20px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
 
-.fly{
-position:fixed;
-z-index:999;
-pointer-events:none;
-transition:all 0.6s cubic-bezier(.25,.8,.25,1);
+.setFull ul{
+padding-left:18px;
+margin-bottom:20px;
+}
+
+.setFull li{
+margin-bottom:6px;
+}
+
+.priceBig{
+font-size:22px;
+font-weight:700;
+color:#2e7d32;
+margin-bottom:16px;
+}
+
+.orderBtn{
+width:100%;
+padding:14px;
+font-size:16px;
+margin-bottom:10px;
+}
+
+.backBtn{
+width:100%;
+background:#ddd;
+color:#333;
 }
