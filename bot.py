@@ -126,6 +126,136 @@ async def order_from_webapp(message: types.Message):
     )
 
 
+# ---------- АДМИН-ПАНЕЛЬ ----------
+
+@dp.message(Command("admin"))
+async def admin_panel(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    keyboard = [
+        [types.KeyboardButton(text="🔄 Сбросить места")],
+        [types.KeyboardButton(text="❌ Закрыть Понедельник")],
+        [types.KeyboardButton(text="✅ Открыть Понедельник")],
+        [types.KeyboardButton(text="❌ Закрыть Среда")],
+        [types.KeyboardButton(text="✅ Открыть Среда")],
+        [types.KeyboardButton(text="❌ Закрыть Пятница")],
+        [types.KeyboardButton(text="✅ Открыть Пятница")]
+    ]
+
+    markup = types.ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True
+    )
+
+    await message.answer(
+        "Админ-панель управления заказами",
+        reply_markup=markup
+    )
+
+
+# ---------- СБРОС МЕСТ ----------
+
+@dp.message(lambda m: m.text == "🔄 Сбросить места")
+async def reset_spots(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    data = {
+        "Понедельник": 15,
+        "Среда": 15,
+        "Пятница": 15
+    }
+
+    save_spots(data)
+
+    await message.answer("Места сброшены на 15.")
+
+
+# ---------- ЗАКРЫТИЕ ДНЕЙ ----------
+
+@dp.message(lambda m: m.text == "❌ Закрыть Понедельник")
+async def close_mon(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Понедельник"] = 0
+    save_spots(spots)
+
+    await message.answer("Понедельник закрыт.")
+
+
+@dp.message(lambda m: m.text == "❌ Закрыть Среда")
+async def close_wed(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Среда"] = 0
+    save_spots(spots)
+
+    await message.answer("Среда закрыта.")
+
+
+@dp.message(lambda m: m.text == "❌ Закрыть Пятница")
+async def close_fri(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Пятница"] = 0
+    save_spots(spots)
+
+    await message.answer("Пятница закрыта.")
+
+
+# ---------- ОТКРЫТИЕ ДНЕЙ ----------
+
+@dp.message(lambda m: m.text == "✅ Открыть Понедельник")
+async def open_mon(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Понедельник"] = 15
+    save_spots(spots)
+
+    await message.answer("Понедельник открыт.")
+
+
+@dp.message(lambda m: m.text == "✅ Открыть Среда")
+async def open_wed(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Среда"] = 15
+    save_spots(spots)
+
+    await message.answer("Среда открыта.")
+
+
+@dp.message(lambda m: m.text == "✅ Открыть Пятница")
+async def open_fri(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+    spots["Пятница"] = 15
+    save_spots(spots)
+
+    await message.answer("Пятница открыта.")
+
+
 # ---------- API ДЛЯ MINI APP ----------
 
 async def get_spots(request):
@@ -134,7 +264,6 @@ async def get_spots(request):
 
     response = web.json_response(data)
 
-    # CORS для Mini App
     response.headers["Access-Control-Allow-Origin"] = "*"
 
     return response
