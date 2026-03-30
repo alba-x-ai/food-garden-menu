@@ -8,7 +8,7 @@ from aiohttp import web
 
 
 TOKEN = "8681478285:AAEHzhsTN7XkJqkEiVGpbusSm9BpNexA1Q0"
-ADMIN_ID = 430678042
+ADMIN_ID = 8796252165
 
 
 bot = Bot(token=TOKEN)
