@@ -1,9 +1,13 @@
+const API = "https://food-garden-menu.onrender.com/spots"
+
+const LIMIT = 15
+
 const sets = [
 
 {
 day:"Понедельник",
 price:895000,
-spots:0,
+spots:null,
 menu:[
 "Хлеб пшеничный с зирой",
 "Салат «Витаминный»",
@@ -19,7 +23,7 @@ menu:[
 {
 day:"Среда",
 price:925000,
-spots:0,
+spots:null,
 menu:[
 "Хлеб пшеничный с орегано",
 "Салат «Летний»",
@@ -35,7 +39,7 @@ menu:[
 {
 day:"Пятница",
 price:967000,
-spots:0,
+spots:null,
 menu:[
 "Хлеб пшеничный с грецкими орехами и семенами чиа и льна",
 "Свекольный салат с грецким орехом, чесноком и изюмом",
@@ -50,7 +54,6 @@ menu:[
 
 ]
 
-const LIMIT = 15
 const container = document.getElementById("menu")
 
 
@@ -58,25 +61,17 @@ async function loadSpots(){
 
 try{
 
-const res = await fetch(
-"https://food-garden-menu.onrender.com/spots",
-{
-mode:"cors",
-cache:"no-cache"
-}
-)
-
+const res = await fetch(API)
 const data = await res.json()
 
 sets.forEach(set=>{
-set.spots = data[set.day] ?? LIMIT
+set.spots = data[set.day]
 })
 
 }catch(e){
 
 console.log("spots error", e)
 
-// если сервер временно не ответил — не показываем Sold Out
 sets.forEach(set=>{
 set.spots = LIMIT
 })
@@ -149,8 +144,14 @@ ${set.price.toLocaleString()} ₫
 ${soldOut ? "Sold Out":"Осталось мест: "+set.spots+" / "+LIMIT}
 </div>
 
-<button class="orderBtn" ${soldOut ? "disabled":""} onclick="orderSet(${index})">
-${soldOut ? "Недоступно":"Заказать"}
+<textarea id="comment" placeholder="Комментарий к заказу (необязательно)"></textarea>
+
+<button class="orderBtn"
+${soldOut ? "disabled":""}
+onclick="orderSet('${set.day}')">
+
+${soldOut ? "Недоступно" : "Заказать"}
+
 </button>
 
 <button class="backBtn" onclick="renderSets()">
@@ -165,11 +166,16 @@ ${soldOut ? "Недоступно":"Заказать"}
 
 
 
-function orderSet(index){
+function orderSet(day){
 
-const set = sets[index]
+const comment = document.getElementById("comment").value
 
-Telegram.WebApp.sendData(set.day)
+const order = {
+day: day,
+comment: comment
+}
+
+Telegram.WebApp.sendData(JSON.stringify(order))
 
 }
 
@@ -178,18 +184,9 @@ Telegram.WebApp.sendData(set.day)
 async function init(){
 
 await loadSpots()
+
 renderSets()
-
-// автообновление мест
-setInterval(async ()=>{
-
-await loadSpots()
-renderSets()
-
-},5000)
 
 }
-
-
 
 init()
