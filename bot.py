@@ -77,12 +77,14 @@ async def handle_buttons(message: types.Message):
 
     if message.text == "📍 Контакты":
 
-        await message.answer(
-            "📍 Локация: Дананг\n\n"
-            "Связаться с нами можно:\n"
-            "https://t.me/Foodgardenadmin"
-        )
-
+    await message.answer(
+        "📍 Локация: Дананг\n\n"
+        "Связаться с нами:\n"
+        "👤 Администратор\n"
+        "https://t.me/Foodgardenadmin\n\n"
+        "💬 Чат отзывов и вопросов\n"
+        "https://t.me/foodgardendanang"
+    )
 
 # ---------- ПРИЁМ ЗАКАЗА ----------
 
