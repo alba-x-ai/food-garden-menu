@@ -1,7 +1,7 @@
 import asyncio
 import json
-import os
 import sqlite3
+import os
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -12,7 +12,6 @@ TOKEN = "8681478285:AAEHzhsTN7XkJqkEiVGpbusSm9BpNexA1Q0"
 ADMIN_ID = 430678042
 
 LIMIT = 15
-
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -65,7 +64,12 @@ def reset_spots():
     conn.commit()
 
 
-# ---------- START ----------
+# ---------- ХРАНЕНИЕ ЗАКАЗОВ ДО ПОЛУЧЕНИЯ ЛОКАЦИИ ----------
+
+pending_orders = {}
+
+
+# ---------- СТАРТ ----------
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -93,17 +97,18 @@ async def start(message: types.Message):
         "👨‍🍳 Food Garden\n\n"
         "Готовое меню на 2 дня с доставкой.\n\n"
         "📦 Доставка: Понедельник / Среда / Пятница\n"
-        "⏰ Время доставки: 8:00 – 12:00\n\n"
+        "⏰ Доставка с 8:00 до 12:00\n\n"
         "Нажмите «Открыть меню», чтобы оформить заказ.",
         reply_markup=markup
     )
 
 
-# ---------- КОНТАКТЫ И ЗАКАЗ ----------
+# ---------- КНОПКИ ----------
 
 @dp.message()
 async def handle_buttons(message: types.Message):
 
+    # КОНТАКТЫ
     if message.text == "📍 Контакты":
 
         await message.answer(
@@ -116,6 +121,7 @@ async def handle_buttons(message: types.Message):
         )
 
 
+    # ---------- ЗАКАЗ ИЗ MINI APP ----------
     if message.web_app_data:
 
         try:
@@ -137,33 +143,26 @@ async def handle_buttons(message: types.Message):
 
             decrease_spot(day)
 
-            username = message.from_user.username
-            name = message.from_user.full_name
+            pending_orders[message.from_user.id] = {
+                "day": day,
+                "comment": comment
+            }
 
-            if username:
-                user = f"@{username}"
-            else:
-                user = f"id:{message.from_user.id}"
 
-            spots = get_spots()
+            keyboard = [
+                [types.KeyboardButton(text="📍 Отправить локацию", request_location=True)]
+            ]
 
-            admin_text = (
-                "🆕 Новый заказ\n\n"
-                f"📅 День: {day}\n\n"
-                f"👤 Клиент: {name}\n"
-                f"{user}\n\n"
-                f"💬 Комментарий: {comment}\n\n"
-                f"📦 Осталось мест: {spots[day]}"
+            markup = types.ReplyKeyboardMarkup(
+                keyboard=keyboard,
+                resize_keyboard=True,
+                one_time_keyboard=True
             )
 
-            try:
-                await bot.send_message(ADMIN_ID, admin_text)
-            except Exception as e:
-                print("ADMIN ERROR:",e)
-
             await message.answer(
-                "✅ Заказ принят!\n"
-                "Оплата при получении."
+                "✅ Заказ принят!\n\n"
+                "📍 Пожалуйста отправьте локацию доставки.",
+                reply_markup=markup
             )
 
         except Exception as e:
@@ -173,6 +172,58 @@ async def handle_buttons(message: types.Message):
             await message.answer(
                 "Ошибка обработки заказа."
             )
+
+
+# ---------- ЛОКАЦИЯ ДОСТАВКИ ----------
+
+@dp.message(lambda m: m.location)
+async def location_handler(message: types.Message):
+
+    user_id = message.from_user.id
+
+    if user_id not in pending_orders:
+        return
+
+    order = pending_orders[user_id]
+
+    day = order["day"]
+    comment = order["comment"]
+
+    lat = message.location.latitude
+    lon = message.location.longitude
+
+    username = message.from_user.username
+    name = message.from_user.full_name
+
+    if username:
+        user = f"@{username}"
+    else:
+        user = f"id:{user_id}"
+
+    spots = get_spots()
+
+    admin_text = (
+        "🆕 Новый заказ\n\n"
+        f"📅 День: {day}\n\n"
+        f"👤 Клиент: {name}\n"
+        f"{user}\n\n"
+        f"💬 Комментарий: {comment}\n\n"
+        f"📍 Локация:\n"
+        f"https://maps.google.com/?q={lat},{lon}\n\n"
+        f"📦 Осталось мест: {spots[day]}"
+    )
+
+    try:
+        await bot.send_message(ADMIN_ID, admin_text)
+    except Exception as e:
+        print("ADMIN ERROR:",e)
+
+    await message.answer(
+        "📍 Локация получена.\n"
+        "Спасибо! Курьер приедет утром."
+    )
+
+    del pending_orders[user_id]
 
 
 # ---------- АДМИН ПАНЕЛЬ ----------
