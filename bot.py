@@ -14,6 +14,7 @@ ADMIN_ID = 430678042
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+
 LIMIT = 15
 
 spots = {
@@ -23,7 +24,7 @@ spots = {
 }
 
 
-# ---------- СТАРТ / ПРИВЕТСТВИЕ ----------
+# ---------- ПРИВЕТСТВИЕ ----------
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
@@ -50,7 +51,7 @@ async def start(message: types.Message):
         "👨‍🍳 Food Garden\n\n"
         "Готовое меню на 2 дня с доставкой.\n\n"
         "📦 Доставка: Понедельник / Среда / Пятница\n"
-        "⏰ Время доставки: 8:00 – 12:00\n\n"
+        "⏰ Доставка с 8:00 до 12:00\n\n"
         "Нажмите «Открыть меню», чтобы оформить заказ.",
         reply_markup=markup
     )
@@ -60,6 +61,7 @@ async def start(message: types.Message):
 @dp.message()
 async def handle_buttons(message: types.Message):
 
+    # КОНТАКТЫ
     if message.text == "📍 Контакты":
 
         await message.answer(
@@ -71,48 +73,59 @@ async def handle_buttons(message: types.Message):
             "https://t.me/foodgardendanang"
         )
 
+    # ---------- ЗАКАЗ ИЗ MINI APP ----------
+    if message.web_app_data:
 
-# ---------- ПРИЁМ ЗАКАЗА ----------
-@dp.message(lambda m: m.web_app_data)
-async def order_from_webapp(message: types.Message):
+        try:
 
-    data = json.loads(message.web_app_data.data)
+            data = json.loads(message.web_app_data.data)
 
-    day = data["day"]
-    comment = data.get("comment", "")
+            day = data["day"]
+            comment = data.get("comment", "")
 
-    if spots.get(day, 0) <= 0:
+            if spots.get(day, 0) <= 0:
 
-        await message.answer(
-            "❌ Места на этот день закончились."
-        )
-        return
+                await message.answer(
+                    "❌ Места на этот день закончились."
+                )
+                return
 
-    spots[day] -= 1
+            spots[day] -= 1
 
-    username = message.from_user.username
-    name = message.from_user.full_name
+            username = message.from_user.username
+            name = message.from_user.full_name
 
-    if username:
-        user = f"@{username}"
-    else:
-        user = f"id:{message.from_user.id}"
+            if username:
+                user = f"@{username}"
+            else:
+                user = f"id:{message.from_user.id}"
 
-    text = (
-        "🆕 Новый заказ\n\n"
-        f"📅 День: {day}\n\n"
-        f"👤 Клиент: {name}\n"
-        f"{user}\n\n"
-        f"💬 Комментарий: {comment}\n\n"
-        f"📦 Осталось мест: {spots[day]}"
-    )
+            admin_text = (
+                "🆕 Новый заказ\n\n"
+                f"📅 День: {day}\n\n"
+                f"👤 Клиент: {name}\n"
+                f"{user}\n\n"
+                f"💬 Комментарий: {comment}\n\n"
+                f"📦 Осталось мест: {spots[day]}"
+            )
 
-    await bot.send_message(ADMIN_ID, text)
+            try:
+                await bot.send_message(ADMIN_ID, admin_text)
+            except Exception as e:
+                print("ADMIN SEND ERROR:", e)
 
-    await message.answer(
-        "✅ Заказ принят!\n"
-        "Оплата при получении."
-    )
+            await message.answer(
+                "✅ Заказ принят!\n"
+                "Оплата при получении."
+            )
+
+        except Exception as e:
+
+            print("ORDER ERROR:", e)
+
+            await message.answer(
+                "Ошибка обработки заказа."
+            )
 
 
 # ---------- АДМИН ПАНЕЛЬ ----------
