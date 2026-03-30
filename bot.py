@@ -73,7 +73,7 @@ async def start(message: types.Message):
 
 # ---------- КОНТАКТЫ ----------
 
-@dp.message(lambda m: m.text == "📍 Контакты")
+@dp.message(lambda message: message.text == "📍 Контакты")
 async def contacts(message: types.Message):
 
     await message.answer(
@@ -134,7 +134,7 @@ async def get_spots(request):
 
     response = web.json_response(data)
 
-    # CORS — разрешаем Mini App читать API
+    # CORS для Mini App
     response.headers["Access-Control-Allow-Origin"] = "*"
 
     return response
@@ -149,7 +149,6 @@ async def start_api():
     runner = web.AppRunner(app)
     await runner.setup()
 
-    # правильный порт для Render
     port = int(os.environ.get("PORT", 10000))
 
     site = web.TCPSite(runner, "0.0.0.0", port)
