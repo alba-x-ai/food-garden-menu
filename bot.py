@@ -1,16 +1,19 @@
 import asyncio
+import json
 import os
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiohttp import web
 
+
 TOKEN = "8681478285:AAEHzhsTN7XkJqkEiVGpbusSm9BpNexA1Q0"
 ADMIN_ID = 8796252165
+
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# ---------- ХРАНЕНИЕ МЕСТ В ПАМЯТИ ----------
 LIMIT = 15
 
 spots = {
@@ -19,7 +22,8 @@ spots = {
     "Пятница": LIMIT
 }
 
-# ---------- START ----------
+
+# ---------- СТАРТ / ПРИВЕТСТВИЕ ----------
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
@@ -43,8 +47,11 @@ async def start(message: types.Message):
     )
 
     await message.answer(
-        "👨‍🍳 FOOD GARDEN\n\n"
-        "Готовое меню на 2 дня.",
+        "👨‍🍳 Food Garden\n\n"
+        "Готовое меню на 2 дня с доставкой.\n\n"
+        "📦 Доставка: Понедельник / Среда / Пятница\n"
+        "⏰ Время доставки: 8:00 – 12:00\n\n"
+        "Нажмите «Открыть меню», чтобы оформить заказ.",
         reply_markup=markup
     )
 
@@ -57,7 +64,7 @@ async def handle_buttons(message: types.Message):
 
         await message.answer(
             "📍 Локация: Дананг\n\n"
-            "Связаться с нами:\n"
+            "Связаться с нами:\n\n"
             "👤 Администратор\n"
             "https://t.me/Foodgardenadmin\n\n"
             "💬 Чат отзывов и вопросов\n"
@@ -69,10 +76,16 @@ async def handle_buttons(message: types.Message):
 @dp.message(lambda m: m.web_app_data)
 async def order_from_webapp(message: types.Message):
 
-    day = message.web_app_data.data.strip()
+    data = json.loads(message.web_app_data.data)
+
+    day = data["day"]
+    comment = data.get("comment", "")
 
     if spots.get(day, 0) <= 0:
-        await message.answer("❌ Места на этот день закончились.")
+
+        await message.answer(
+            "❌ Места на этот день закончились."
+        )
         return
 
     spots[day] -= 1
@@ -90,6 +103,7 @@ async def order_from_webapp(message: types.Message):
         f"📅 День: {day}\n\n"
         f"👤 Клиент: {name}\n"
         f"{user}\n\n"
+        f"💬 Комментарий: {comment}\n\n"
         f"📦 Осталось мест: {spots[day]}"
     )
 
