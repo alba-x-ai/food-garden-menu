@@ -15,7 +15,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
-# ---------- БАЗА ----------
+# ---------------- БАЗА ----------------
 
 def save_spots(data):
     with open("spots.json", "w", encoding="utf-8") as f:
@@ -39,7 +39,7 @@ def load_spots():
         return json.load(f)
 
 
-# ---------- START ----------
+# ---------------- START ----------------
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -66,24 +66,24 @@ async def start(message: types.Message):
     await message.answer(
         "👨‍🍳 Privet Kitchen\n\n"
         "Готовое меню на 2 дня.\n"
-        "Откройте меню для оформления заказа.",
+        "Выберите действие:",
         reply_markup=markup
     )
 
 
-# ---------- КОНТАКТЫ ----------
+# ---------------- КОНТАКТЫ ----------------
 
 @dp.message(lambda m: m.text == "📍 Контакты")
 async def contacts(message: types.Message):
 
     await message.answer(
         "📍 Локация: Дананг\n\n"
-        "📞 Связаться с нами можно:\n"
+        "Связаться с нами можно:\n"
         "@Foodgardenadmin"
     )
 
 
-# ---------- ПРИЁМ ЗАКАЗА ----------
+# ---------------- ЗАКАЗ ----------------
 
 @dp.message(lambda m: m.web_app_data)
 async def order_from_webapp(message: types.Message):
@@ -122,11 +122,11 @@ async def order_from_webapp(message: types.Message):
 
     await message.answer(
         "✅ Заказ принят!\n"
-        "Оплата при получении."
+        "Оплата при получлении."
     )
 
 
-# ---------- API ----------
+# ---------------- API ДЛЯ MINI APP ----------------
 
 async def get_spots(request):
 
@@ -144,11 +144,14 @@ async def start_api():
     runner = web.AppRunner(app)
     await runner.setup()
 
-    site = web.TCPSite(runner, "0.0.0.0", 10000)
+    port = int(os.environ.get("PORT", 10000))
+
+    site = web.TCPSite(runner, "0.0.0.0", port)
+
     await site.start()
 
 
-# ---------- ЗАПУСК ----------
+# ---------------- ЗАПУСК ----------------
 
 async def main():
 
