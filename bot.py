@@ -64,23 +64,26 @@ async def start(message: types.Message):
     )
 
     await message.answer(
-        "👨‍🍳 Food Garden\n\n"
+        "👨‍🍳 Privet Kitchen\n\n"
         "Готовое меню на 2 дня.\n"
         "Выберите действие:",
         reply_markup=markup
     )
 
 
-# ---------- КОНТАКТЫ ----------
+# ---------- ОБРАБОТКА КНОПОК ----------
 
-@dp.message(lambda message: message.text == "📍 Контакты")
-async def contacts(message: types.Message):
+@dp.message()
+async def handle_buttons(message: types.Message):
 
-    await message.answer(
-        "📍 Локация: Дананг\n\n"
-        "Связаться с нами можно:\n"
-        "@Foodgardenadmin"
-    )
+    # КОНТАКТЫ
+    if message.text == "📍 Контакты":
+
+        await message.answer(
+            "📍 Локация: Дананг\n\n"
+            "Связаться с нами можно:\n"
+            "https://t.me/Foodgardenadmin"
+        )
 
 
 # ---------- ПРИЁМ ЗАКАЗА ----------
@@ -126,7 +129,7 @@ async def order_from_webapp(message: types.Message):
     )
 
 
-# ---------- АДМИН-ПАНЕЛЬ ----------
+# ---------- АДМИН ПАНЕЛЬ ----------
 
 @dp.message(Command("admin"))
 async def admin_panel(message: types.Message):
@@ -135,6 +138,7 @@ async def admin_panel(message: types.Message):
         return
 
     keyboard = [
+        [types.KeyboardButton(text="📊 Статистика заказов")],
         [types.KeyboardButton(text="🔄 Сбросить места")],
         [types.KeyboardButton(text="❌ Закрыть Понедельник")],
         [types.KeyboardButton(text="✅ Открыть Понедельник")],
@@ -153,6 +157,26 @@ async def admin_panel(message: types.Message):
         "Админ-панель управления заказами",
         reply_markup=markup
     )
+
+
+# ---------- СТАТИСТИКА ----------
+
+@dp.message(lambda m: m.text == "📊 Статистика заказов")
+async def stats(message: types.Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    spots = load_spots()
+
+    text = (
+        "📊 Статистика заказов\n\n"
+        f"Понедельник: {15 - spots['Понедельник']} / 15\n"
+        f"Среда: {15 - spots['Среда']} / 15\n"
+        f"Пятница: {15 - spots['Пятница']} / 15"
+    )
+
+    await message.answer(text)
 
 
 # ---------- СБРОС МЕСТ ----------
