@@ -64,7 +64,7 @@ async def start(message: types.Message):
     )
 
     await message.answer(
-        "👨‍🍳 Privet Kitchen\n\n"
+        "👨‍🍳 Food Garden\n\n"
         "Готовое меню на 2 дня.\n"
         "Выберите действие:",
         reply_markup=markup
