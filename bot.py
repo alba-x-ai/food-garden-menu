@@ -28,31 +28,37 @@ places INTEGER
 )
 """)
 
-for day in ["Понедельник", "Среда", "Пятница"]:
+for day in ["Понедельник","Среда","Пятница"]:
     cursor.execute(
         "INSERT OR IGNORE INTO spots(day,places) VALUES(?,?)",
-        (day, LIMIT)
+        (day,LIMIT)
     )
 
 conn.commit()
 
 
 def get_spots():
+
     data = {}
+
     for row in cursor.execute("SELECT day,places FROM spots"):
         data[row[0]] = row[1]
+
     return data
 
 
 def decrease_spot(day):
+
     cursor.execute(
         "UPDATE spots SET places = places - 1 WHERE day=? AND places>0",
         (day,)
     )
+
     conn.commit()
 
 
 def reset_spots():
+
     cursor.execute("UPDATE spots SET places=?", (LIMIT,))
     conn.commit()
 
@@ -62,7 +68,7 @@ pending_orders = {}
 payment_state = {}
 
 
-# ---------- СТАРТ ----------
+# ---------- START ----------
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
@@ -85,9 +91,9 @@ async def start(message: types.Message):
 
     await message.answer(
         "👨‍🍳 Food Garden\n\n"
-        "Готовое меню на 2 дня с доставкой.\n\n"
-        "📦 Доставка: Понедельник / Среда / Пятница\n"
-        "⏰ 8:00 – 12:00\n\n"
+        "Готовое меню на 2 дня.\n"
+        "📦 Доставка: Пн / Ср / Пт\n"
+        "⏰ 8:00–12:00\n\n"
         "Нажмите «Открыть меню».",
         reply_markup=markup
     )
@@ -98,7 +104,7 @@ async def start(message: types.Message):
 async def contacts(message: types.Message):
 
     await message.answer(
-        "📍 Локация: Дананг\n\n"
+        "📍 Дананг\n\n"
         "👤 Администратор\n"
         "https://t.me/Foodgardenadmin\n\n"
         "💬 Чат отзывов\n"
@@ -113,7 +119,7 @@ async def webapp_order(message: types.Message):
     data = json.loads(message.web_app_data.data)
 
     day = data["day"]
-    comment = data.get("comment", "")
+    comment = data.get("comment","")
 
     spots = get_spots()
 
@@ -129,7 +135,7 @@ async def webapp_order(message: types.Message):
     }
 
     keyboard = [
-        [types.KeyboardButton(text="📍 Отправить локацию", request_location=True)]
+        [types.KeyboardButton(text="📍 Отправить геопозицию", request_location=True)]
     ]
 
     markup = types.ReplyKeyboardMarkup(
@@ -140,12 +146,12 @@ async def webapp_order(message: types.Message):
 
     await message.answer(
         "✅ Заказ принят.\n\n"
-        "📍 Отправьте локацию доставки.",
+        "📍 Нажмите кнопку и отправьте геопозицию доставки.",
         reply_markup=markup
     )
 
 
-# ---------- ЛОКАЦИЯ ----------
+# ---------- ГЕОПОЗИЦИЯ ----------
 @dp.message(F.location)
 async def location_handler(message: types.Message):
 
@@ -182,8 +188,8 @@ async def location_handler(message: types.Message):
     )
 
 
-# ---------- ТИП ОПЛАТЫ ----------
-@dp.message(F.text.in_(["💵 Наличными", "💳 Картой"]))
+# ---------- ВЫБОР ОПЛАТЫ ----------
+@dp.message(F.text.in_(["💵 Наличными","💳 Картой"]))
 async def payment_type(message: types.Message):
 
     user_id = message.from_user.id
@@ -196,7 +202,7 @@ async def payment_type(message: types.Message):
         payment_state[user_id]["payment"] = "Наличные"
 
         await message.answer(
-            "С какой суммы нужна сдача?"
+            "Напишите сумму, с которой нужна сдача."
         )
 
     else:
@@ -221,7 +227,7 @@ async def payment_type(message: types.Message):
         )
 
         await message.answer(
-            "Выберите банк / кошелёк:",
+            "Выберите банк:",
             reply_markup=markup
         )
 
@@ -261,7 +267,7 @@ async def cash_handler(message: types.Message):
         await finish_order(message)
 
 
-# ---------- ЗАВЕРШЕНИЕ ----------
+# ---------- ФИНАЛ ----------
 async def finish_order(message):
 
     user_id = message.from_user.id
@@ -282,16 +288,18 @@ async def finish_order(message):
         f"{user}\n\n"
         f"💬 Комментарий: {order['comment']}\n\n"
         f"💳 Оплата: {order['payment']}\n"
-        f"💰 Детали: {order['payment_detail']}\n\n"
-        f"📍 https://maps.google.com/?q={order['lat']},{order['lon']}"
+        f"💰 Детали: {order['payment_detail']}"
     )
 
     await bot.send_message(ADMIN_ID, admin_text)
 
-    await message.answer(
-        "✅ Заказ оформлен.\n"
-        "Спасибо!"
+    await bot.send_location(
+        ADMIN_ID,
+        latitude=order["lat"],
+        longitude=order["lon"]
     )
+
+    await message.answer("✅ Заказ оформлен.")
 
     del payment_state[user_id]
     del pending_orders[user_id]
@@ -324,9 +332,9 @@ async def stats(message: types.Message):
 
     text = (
         "📊 Статистика\n\n"
-        f"Понедельник: {LIMIT - spots['Понедельник']}/{LIMIT}\n"
-        f"Среда: {LIMIT - spots['Среда']}/{LIMIT}\n"
-        f"Пятница: {LIMIT - spots['Пятница']}/{LIMIT}"
+        f"Пн: {LIMIT - spots['Понедельник']}/{LIMIT}\n"
+        f"Ср: {LIMIT - spots['Среда']}/{LIMIT}\n"
+        f"Пт: {LIMIT - spots['Пятница']}/{LIMIT}"
     )
 
     await message.answer(text)
@@ -356,9 +364,9 @@ async def start_api():
     runner = web.AppRunner(app)
     await runner.setup()
 
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT",10000))
 
-    site = web.TCPSite(runner, "0.0.0.0", port)
+    site = web.TCPSite(runner,"0.0.0.0",port)
     await site.start()
 
 
