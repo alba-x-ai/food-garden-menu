@@ -17,8 +17,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
-# ---------- БАЗА ДАННЫХ ----------
-
+# ---------- БАЗА ----------
 conn = sqlite3.connect("orders.db")
 cursor = conn.cursor()
 
@@ -64,13 +63,12 @@ def reset_spots():
     conn.commit()
 
 
-# ---------- ХРАНЕНИЕ ЗАКАЗОВ ДО ПОЛУЧЕНИЯ ЛОКАЦИИ ----------
-
+# ---------- ВРЕМЕННЫЕ ДАННЫЕ ----------
 pending_orders = {}
+payment_state = {}
 
 
 # ---------- СТАРТ ----------
-
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
@@ -104,16 +102,13 @@ async def start(message: types.Message):
 
 
 # ---------- КНОПКИ ----------
-
 @dp.message()
 async def handle_buttons(message: types.Message):
 
-    # КОНТАКТЫ
     if message.text == "📍 Контакты":
 
         await message.answer(
             "📍 Локация: Дананг\n\n"
-            "Связаться с нами:\n\n"
             "👤 Администратор\n"
             "https://t.me/Foodgardenadmin\n\n"
             "💬 Чат отзывов и вопросов\n"
@@ -124,58 +119,45 @@ async def handle_buttons(message: types.Message):
     # ---------- ЗАКАЗ ИЗ MINI APP ----------
     if message.web_app_data:
 
-        try:
+        data = json.loads(message.web_app_data.data)
 
-            data = json.loads(message.web_app_data.data)
+        day = data["day"]
+        comment = data.get("comment","")
 
-            day = data["day"]
-            comment = data.get("comment","")
+        spots = get_spots()
 
-            spots = get_spots()
+        if spots[day] <= 0:
 
-            if spots[day] <= 0:
-
-                await message.answer(
-                    "❌ Места на этот день закончились."
-                )
-                return
+            await message.answer("❌ Места закончились.")
+            return
 
 
-            decrease_spot(day)
+        decrease_spot(day)
 
-            pending_orders[message.from_user.id] = {
-                "day": day,
-                "comment": comment
-            }
-
-
-            keyboard = [
-                [types.KeyboardButton(text="📍 Отправить локацию", request_location=True)]
-            ]
-
-            markup = types.ReplyKeyboardMarkup(
-                keyboard=keyboard,
-                resize_keyboard=True,
-                one_time_keyboard=True
-            )
-
-            await message.answer(
-                "✅ Заказ принят!\n\n"
-                "📍 Пожалуйста отправьте локацию доставки.",
-                reply_markup=markup
-            )
-
-        except Exception as e:
-
-            print("ORDER ERROR:",e)
-
-            await message.answer(
-                "Ошибка обработки заказа."
-            )
+        pending_orders[message.from_user.id] = {
+            "day": day,
+            "comment": comment
+        }
 
 
-# ---------- ЛОКАЦИЯ ДОСТАВКИ ----------
+        keyboard = [
+            [types.KeyboardButton(text="📍 Отправить локацию", request_location=True)]
+        ]
 
+        markup = types.ReplyKeyboardMarkup(
+            keyboard=keyboard,
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
+
+        await message.answer(
+            "✅ Заказ принят.\n\n"
+            "📍 Отправьте локацию доставки.",
+            reply_markup=markup
+        )
+
+
+# ---------- ЛОКАЦИЯ ----------
 @dp.message(lambda m: m.location)
 async def location_handler(message: types.Message):
 
@@ -186,11 +168,117 @@ async def location_handler(message: types.Message):
 
     order = pending_orders[user_id]
 
-    day = order["day"]
-    comment = order["comment"]
+    payment_state[user_id] = {
+        "day": order["day"],
+        "comment": order["comment"],
+        "lat": message.location.latitude,
+        "lon": message.location.longitude
+    }
 
-    lat = message.location.latitude
-    lon = message.location.longitude
+    keyboard = [
+        [
+            types.KeyboardButton(text="💵 Наличными"),
+            types.KeyboardButton(text="💳 Картой")
+        ]
+    ]
+
+    markup = types.ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+    await message.answer(
+        "💳 Как хотите оплатить заказ?",
+        reply_markup=markup
+    )
+
+
+# ---------- ВЫБОР СПОСОБА ОПЛАТЫ ----------
+@dp.message(lambda m: m.text in ["💵 Наличными","💳 Картой"])
+async def payment_type(message: types.Message):
+
+    user_id = message.from_user.id
+
+    if user_id not in payment_state:
+        return
+
+
+    if message.text == "💵 Наличными":
+
+        payment_state[user_id]["payment"] = "Наличные"
+
+        await message.answer(
+            "С какой суммы нужна сдача?"
+        )
+
+    else:
+
+        payment_state[user_id]["payment"] = "Карта"
+
+        keyboard = [
+            [
+                types.KeyboardButton(text="💳 Vietcombank"),
+                types.KeyboardButton(text="💳 Techcombank")
+            ],
+            [
+                types.KeyboardButton(text="💳 Momo"),
+                types.KeyboardButton(text="💳 ZaloPay")
+            ]
+        ]
+
+        markup = types.ReplyKeyboardMarkup(
+            keyboard=keyboard,
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
+
+        await message.answer(
+            "Выберите способ оплаты:",
+            reply_markup=markup
+        )
+
+
+# ---------- ВЫБОР БАНКА ----------
+@dp.message(lambda m: m.text in [
+    "💳 Vietcombank",
+    "💳 Techcombank",
+    "💳 Momo",
+    "💳 ZaloPay"
+])
+async def bank_payment(message: types.Message):
+
+    user_id = message.from_user.id
+
+    if user_id not in payment_state:
+        return
+
+    payment_state[user_id]["payment_detail"] = message.text
+
+    await finish_order(message)
+
+
+# ---------- НАЛИЧНЫЕ ----------
+@dp.message()
+async def cash_amount(message: types.Message):
+
+    user_id = message.from_user.id
+
+    if user_id not in payment_state:
+        return
+
+    if payment_state[user_id]["payment"] == "Наличные":
+
+        payment_state[user_id]["payment_detail"] = message.text
+
+        await finish_order(message)
+
+
+# ---------- ЗАВЕРШЕНИЕ ЗАКАЗА ----------
+async def finish_order(message):
+
+    user_id = message.from_user.id
+    order = payment_state[user_id]
 
     username = message.from_user.username
     name = message.from_user.full_name
@@ -200,39 +288,33 @@ async def location_handler(message: types.Message):
     else:
         user = f"id:{user_id}"
 
-    spots = get_spots()
-
     admin_text = (
         "🆕 Новый заказ\n\n"
-        f"📅 День: {day}\n\n"
+        f"📅 День: {order['day']}\n"
         f"👤 Клиент: {name}\n"
         f"{user}\n\n"
-        f"💬 Комментарий: {comment}\n\n"
-        f"📍 Локация:\n"
-        f"https://maps.google.com/?q={lat},{lon}\n\n"
-        f"📦 Осталось мест: {spots[day]}"
+        f"💬 Комментарий: {order['comment']}\n\n"
+        f"💳 Оплата: {order['payment']}\n"
+        f"💰 Детали: {order['payment_detail']}\n\n"
+        f"📍 https://maps.google.com/?q={order['lat']},{order['lon']}"
     )
 
-    try:
-        await bot.send_message(ADMIN_ID, admin_text)
-    except Exception as e:
-        print("ADMIN ERROR:",e)
+    await bot.send_message(ADMIN_ID, admin_text)
 
     await message.answer(
-        "📍 Локация получена.\n"
-        "Спасибо! Курьер приедет утром."
+        "✅ Заказ оформлен.\n"
+        "Спасибо!"
     )
 
+    del payment_state[user_id]
     del pending_orders[user_id]
 
 
-# ---------- АДМИН ПАНЕЛЬ ----------
-
+# ---------- АДМИН ----------
 @dp.message(Command("admin"))
-async def admin_panel(message: types.Message):
+async def admin(message: types.Message):
 
     if message.from_user.id != ADMIN_ID:
-        await message.answer("Нет доступа")
         return
 
     keyboard = [
@@ -251,45 +333,33 @@ async def admin_panel(message: types.Message):
     )
 
 
-# ---------- СТАТИСТИКА ----------
-
 @dp.message(lambda m: m.text == "📊 Статистика")
 async def stats(message: types.Message):
-
-    if message.from_user.id != ADMIN_ID:
-        return
 
     spots = get_spots()
 
     text = (
-        "📊 Статистика заказов\n\n"
-        f"Понедельник: {LIMIT - spots['Понедельник']} / {LIMIT}\n"
-        f"Среда: {LIMIT - spots['Среда']} / {LIMIT}\n"
-        f"Пятница: {LIMIT - spots['Пятница']} / {LIMIT}"
+        "📊 Статистика\n\n"
+        f"Понедельник: {LIMIT - spots['Понедельник']}/{LIMIT}\n"
+        f"Среда: {LIMIT - spots['Среда']}/{LIMIT}\n"
+        f"Пятница: {LIMIT - spots['Пятница']}/{LIMIT}"
     )
 
     await message.answer(text)
 
 
-# ---------- СБРОС ----------
-
 @dp.message(lambda m: m.text == "🔄 Сбросить места")
 async def reset(message: types.Message):
-
-    if message.from_user.id != ADMIN_ID:
-        return
 
     reset_spots()
 
     await message.answer("Места сброшены.")
 
 
-# ---------- API ДЛЯ MINI APP ----------
-
+# ---------- API ----------
 async def get_spots_api(request):
 
     response = web.json_response(get_spots())
-
     response.headers["Access-Control-Allow-Origin"] = "*"
 
     return response
@@ -298,7 +368,6 @@ async def get_spots_api(request):
 async def start_api():
 
     app = web.Application()
-
     app.router.add_get("/spots", get_spots_api)
 
     runner = web.AppRunner(app)
@@ -307,16 +376,13 @@ async def start_api():
     port = int(os.environ.get("PORT",10000))
 
     site = web.TCPSite(runner,"0.0.0.0",port)
-
     await site.start()
 
 
 # ---------- ЗАПУСК ----------
-
 async def main():
 
     await start_api()
-
     await dp.start_polling(bot)
 
 
