@@ -51,26 +51,35 @@ menu:[
 ]
 
 const LIMIT = 15
-
 const container = document.getElementById("menu")
-
 
 
 async function loadSpots(){
 
 try{
 
-const res = await fetch("https://food-garden-menu.onrender.com/spots")
+const res = await fetch(
+"https://food-garden-menu.onrender.com/spots",
+{
+mode:"cors",
+cache:"no-cache"
+}
+)
 
 const data = await res.json()
 
 sets.forEach(set=>{
-set.spots = data[set.day] || 0
+set.spots = data[set.day] ?? LIMIT
 })
 
 }catch(e){
 
-console.log("spots error",e)
+console.log("spots error", e)
+
+// если сервер временно не ответил — не показываем Sold Out
+sets.forEach(set=>{
+set.spots = LIMIT
+})
 
 }
 
@@ -84,7 +93,7 @@ container.innerHTML = ""
 
 sets.forEach((set,i)=>{
 
-const soldOut = set.spots <= 0
+const soldOut = set.spots === 0
 
 const card = document.createElement("div")
 card.className = "setCard"
@@ -118,8 +127,7 @@ container.appendChild(card)
 function openSet(index){
 
 const set = sets[index]
-
-const soldOut = set.spots <= 0
+const soldOut = set.spots === 0
 
 const menuItems = set.menu.map(i=>`<li>${i}</li>`).join("")
 
@@ -170,8 +178,15 @@ Telegram.WebApp.sendData(set.day)
 async function init(){
 
 await loadSpots()
-
 renderSets()
+
+// автообновление мест
+setInterval(async ()=>{
+
+await loadSpots()
+renderSets()
+
+},5000)
 
 }
 
