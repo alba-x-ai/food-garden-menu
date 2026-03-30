@@ -49,9 +49,12 @@ async def start(message: types.Message):
             types.KeyboardButton(
                 text="🍽 Открыть меню",
                 web_app=types.WebAppInfo(
-                    url="https://YOUR_GITHUB_PAGES_LINK"
+                    url="https://alba-x-ai.github.io/food-garden-menu/"
                 )
             )
+        ],
+        [
+            types.KeyboardButton(text="📍 Контакты")
         ]
     ]
 
@@ -62,8 +65,21 @@ async def start(message: types.Message):
 
     await message.answer(
         "👨‍🍳 Privet Kitchen\n\n"
-        "Готовое меню на 2 дня",
+        "Готовое меню на 2 дня.\n"
+        "Откройте меню для оформления заказа.",
         reply_markup=markup
+    )
+
+
+# ---------- КОНТАКТЫ ----------
+
+@dp.message(lambda m: m.text == "📍 Контакты")
+async def contacts(message: types.Message):
+
+    await message.answer(
+        "📍 Локация: Дананг\n\n"
+        "📞 Связаться с нами можно:\n"
+        "@Foodgardenadmin"
     )
 
 
@@ -110,7 +126,7 @@ async def order_from_webapp(message: types.Message):
     )
 
 
-# ---------- API ДЛЯ MINI APP ----------
+# ---------- API ----------
 
 async def get_spots(request):
 
@@ -128,7 +144,7 @@ async def start_api():
     runner = web.AppRunner(app)
     await runner.setup()
 
-    site = web.TCPSite(runner, "0.0.0.0", 8080)
+    site = web.TCPSite(runner, "0.0.0.0", 10000)
     await site.start()
 
 
