@@ -7,8 +7,8 @@ from aiogram.filters import Command
 from aiohttp import web
 
 
-TOKEN = "YOUR_BOT_TOKEN"
-ADMIN_ID = 123456789
+TOKEN = "8681478285:AAEHzhsTN7XkJqkEiVGpbusSm9BpNexA1Q0"
+ADMIN_ID = 8796252165
 
 
 bot = Bot(token=TOKEN)
