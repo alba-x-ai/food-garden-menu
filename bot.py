@@ -15,7 +15,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
-# ---------------- БАЗА ----------------
+# ---------- БАЗА ----------
 
 def save_spots(data):
     with open("spots.json", "w", encoding="utf-8") as f:
@@ -39,7 +39,7 @@ def load_spots():
         return json.load(f)
 
 
-# ---------------- START ----------------
+# ---------- START ----------
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -71,7 +71,7 @@ async def start(message: types.Message):
     )
 
 
-# ---------------- КОНТАКТЫ ----------------
+# ---------- КОНТАКТЫ ----------
 
 @dp.message(lambda m: m.text == "📍 Контакты")
 async def contacts(message: types.Message):
@@ -83,7 +83,7 @@ async def contacts(message: types.Message):
     )
 
 
-# ---------------- ЗАКАЗ ----------------
+# ---------- ПРИЁМ ЗАКАЗА ----------
 
 @dp.message(lambda m: m.web_app_data)
 async def order_from_webapp(message: types.Message):
@@ -122,17 +122,22 @@ async def order_from_webapp(message: types.Message):
 
     await message.answer(
         "✅ Заказ принят!\n"
-        "Оплата при получлении."
+        "Оплата при получении."
     )
 
 
-# ---------------- API ДЛЯ MINI APP ----------------
+# ---------- API ДЛЯ MINI APP ----------
 
 async def get_spots(request):
 
     data = load_spots()
 
-    return web.json_response(data)
+    response = web.json_response(data)
+
+    # CORS — разрешаем Mini App читать API
+    response.headers["Access-Control-Allow-Origin"] = "*"
+
+    return response
 
 
 async def start_api():
@@ -144,6 +149,7 @@ async def start_api():
     runner = web.AppRunner(app)
     await runner.setup()
 
+    # правильный порт для Render
     port = int(os.environ.get("PORT", 10000))
 
     site = web.TCPSite(runner, "0.0.0.0", port)
@@ -151,7 +157,7 @@ async def start_api():
     await site.start()
 
 
-# ---------------- ЗАПУСК ----------------
+# ---------- ЗАПУСК ----------
 
 async def main():
 
