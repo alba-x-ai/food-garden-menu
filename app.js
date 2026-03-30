@@ -60,7 +60,7 @@ async function loadSpots(){
 
 try{
 
-const res = await fetch("http://YOUR_SERVER_IP:8080/spots")
+const res = await fetch("https://food-garden-menu.onrender.com/spots")
 
 const data = await res.json()
 
