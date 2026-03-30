@@ -107,7 +107,7 @@ async def contacts(message: types.Message):
         "📍 Дананг\n\n"
         "👤 Администратор\n"
         "https://t.me/Foodgardenadmin\n\n"
-        "💬 Чат отзывов\n"
+        "💬 Чат вопросов и отзывов\n"
         "https://t.me/foodgardendanang"
     )
 
