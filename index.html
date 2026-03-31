@@ -4,36 +4,273 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Food Garden</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+body{
+font-family:sans-serif;
+background:#f6f6f6;
+padding:20px;
+margin:0;
+}
+
+.setCard{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:8px;
+background:#2ecc71;
+color:white;
+font-size:16px;
+width:100%;
+margin-top:10px;
+}
+
+button:disabled{
+background:#ccc;
+}
+
+.setFull{
+background:white;
+padding:20px;
+border-radius:10px;
+}
+
+.price{
+font-size:18px;
+margin-top:10px;
+}
+
+.spots{
+color:#666;
+margin-top:5px;
+}
+
+textarea{
+width:100%;
+margin-top:10px;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<h1>Food Garden</h1>
+<div id="menu"></div>
 
-<div id="setInfo">
+<script>
 
-Готовое меню на 2 дня с доставкой<br><br>
+const tg = window.Telegram.WebApp
+tg.ready()
 
-📅 Доставка: Понедельник / Среда / Пятница<br>
-👨‍🍳 Готовим: Воскресенье / Вторник / Четверг<br>
-🚫 Суббота — выходной<br><br>
+const API = "https://food-garden-menu.onrender.com/spots"
 
-📦 Доставка с 8:00 до 12:00<br>
-💰 Оплата при получении
+const LIMIT = 15
+
+const sets = [
+
+{
+day:"Понедельник",
+price:895000,
+spots:null,
+menu:[
+"Хлеб пшеничный с зирой",
+"Салат «Витаминный»",
+"Каша гречневая с грибами и луком",
+"Борщ",
+"Гороховый суп",
+"Говядина тушёная с картофельным пюре",
+"Куриная печень с рисом",
+"Солёные огурцы"
+]
+},
+
+{
+day:"Среда",
+price:925000,
+spots:null,
+menu:[
+"Хлеб пшеничный с орегано",
+"Салат «Летний»",
+"Перловая каша с грибами и луком",
+"Солянка",
+"Щи",
+"Котлета свиная/говяжья с гречкой",
+"Котлета куриная с овощной смесью",
+"Квашеная капуста"
+]
+},
+
+{
+day:"Пятница",
+price:967000,
+spots:null,
+menu:[
+"Хлеб пшеничный с орехами",
+"Свекольный салат",
+"Гороховая каша",
+"Куриный суп",
+"Рассольник",
+"Курица с лапшой",
+"Свиные рёбра",
+"Маринованные помидоры"
+]
+}
+
+]
+
+const container = document.getElementById("menu")
+
+
+async function loadSpots(){
+
+try{
+
+const res = await fetch(API)
+const data = await res.json()
+
+sets.forEach(set=>{
+set.spots = data[set.day]
+})
+
+}catch(e){
+
+sets.forEach(set=>{
+set.spots = LIMIT
+})
+
+}
+
+}
+
+
+function renderSets(){
+
+container.innerHTML = ""
+
+sets.forEach((set,i)=>{
+
+const soldOut = set.spots === 0
+
+const card = document.createElement("div")
+card.className = "setCard"
+
+card.innerHTML = `
+
+<h2>${set.day}</h2>
+
+<div class="price">
+${set.price.toLocaleString()} ₫
+</div>
+
+<div class="spots">
+${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
+</div>
+
+<button ${soldOut ? "disabled":""} onclick="openSet(${i})">
+${soldOut ? "Недоступно":"Посмотреть меню"}
+</button>
+
+`
+
+container.appendChild(card)
+
+})
+
+}
+
+
+function openSet(index){
+
+const set = sets[index]
+const soldOut = set.spots === 0
+
+const menuItems = set.menu.map(i=>`<li>${i}</li>`).join("")
+
+container.innerHTML = `
+
+<div class="setFull">
+
+<h2>${set.day}</h2>
+
+<ul>
+${menuItems}
+</ul>
+
+<div class="price">
+${set.price.toLocaleString()} ₫
+</div>
+
+<div class="spots">
+${soldOut ? "Sold Out":"Осталось мест: "+set.spots+" / "+LIMIT}
+</div>
+
+<textarea id="comment" placeholder="Комментарий к заказу"></textarea>
+
+<button
+${soldOut ? "disabled":""}
+onclick="orderSet('${set.day}')">
+
+${soldOut ? "Недоступно" : "Заказать"}
+
+</button>
+
+<button onclick="renderSets()">
+← Назад
+</button>
 
 </div>
 
-<div id="menu"></div>
+`
 
-<script src="app.js"></script>
+}
+
+
+function orderSet(day){
+
+const comment = document.getElementById("comment").value
+
+const order = {
+day:day,
+comment:comment
+}
+
+console.log("SEND ORDER",order)
+
+tg.sendData(JSON.stringify(order))
+
+tg.close()
+
+}
+
+
+async function init(){
+
+await loadSpots()
+
+renderSets()
+
+}
+
+init()
+
+</script>
 
 </body>
 
