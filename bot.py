@@ -72,22 +72,17 @@ payment_state = {}
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
-    menu_button = types.InlineKeyboardMarkup(
-        inline_keyboard=[
+    reply_keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
             [
-                types.InlineKeyboardButton(
+                types.KeyboardButton(
                     text="🍽 Открыть меню",
                     web_app=types.WebAppInfo(
                         url="https://alba-x-ai.github.io/food-garden-menu/"
                     )
-                )
+                ),
+                types.KeyboardButton(text="📍 Контакты")
             ]
-        ]
-    )
-
-    reply_keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [types.KeyboardButton(text="📍 Контакты")]
         ],
         resize_keyboard=True
     )
@@ -96,12 +91,7 @@ async def start(message: types.Message):
         "🍽 Food Garden\n\n"
         "Готовое меню на 2 дня.\n\n"
         "📦 Доставка: Понедельник / Среда / Пятница\n"
-        "⏰ 8:00–12:00\n\n"
-        "Нажмите кнопку ниже, чтобы открыть меню.",
-        reply_markup=menu_button
-    )
-
-    await message.answer(
+        "⏰ 8:00–12:00",
         reply_markup=reply_keyboard
     )
 
@@ -115,7 +105,7 @@ async def contacts(message: types.Message):
         "Администратор:\n"
         "https://t.me/Foodgardenadmin\n\n"
         "Отзывы:\n"
-        "https://t.me/foodgardenchannel"
+        "https://t.me/foodgardenreviews"
     )
 
 
@@ -295,48 +285,6 @@ async def finish_order(message):
 
     del payment_state[user_id]
     del pending_orders[user_id]
-
-
-# ---------- АДМИН ----------
-@dp.message(Command("admin"))
-async def admin(message: types.Message):
-
-    if message.from_user.id != ADMIN_ID:
-        return
-
-    keyboard = [
-        [types.KeyboardButton(text="📊 Статистика")],
-        [types.KeyboardButton(text="🔄 Сбросить места")]
-    ]
-
-    markup = types.ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True
-    )
-
-    await message.answer("⚙️ Админ панель", reply_markup=markup)
-
-
-@dp.message(F.text == "📊 Статистика")
-async def stats(message: types.Message):
-
-    spots = get_spots()
-
-    text = (
-        "📊 Статистика\n\n"
-        f"Пн: {LIMIT - spots['Понедельник']}/{LIMIT}\n"
-        f"Ср: {LIMIT - spots['Среда']}/{LIMIT}\n"
-        f"Пт: {LIMIT - spots['Пятница']}/{LIMIT}"
-    )
-
-    await message.answer(text)
-
-
-@dp.message(F.text == "🔄 Сбросить места")
-async def reset(message: types.Message):
-
-    reset_spots()
-    await message.answer("Места сброшены.")
 
 
 # ---------- API ----------
