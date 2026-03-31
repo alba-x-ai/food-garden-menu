@@ -115,7 +115,7 @@ async def contacts(message: types.Message):
         "Администратор:\n"
         "https://t.me/Foodgardenadmin\n\n"
         "Отзывы:\n"
-        "https://t.me/foodgardenreviews"
+        "https://t.me/foodgardenchannel"
     )
 
 
