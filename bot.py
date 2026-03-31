@@ -9,7 +9,7 @@ from aiohttp import web
 
 
 TOKEN = "8681478285:AAF_Dr8fTLWcOGestn7fPe-Eo_2v6LgplFg"
-ADMIN_ID = 430678042
+ADMIN_ID = 8796252165
 
 LIMIT = 15
 
