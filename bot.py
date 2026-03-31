@@ -107,8 +107,14 @@ async def webapp_order(message: types.Message):
 
     data = json.loads(message.web_app_data.data)
 
-    day = data["day"]
+    cart = data.get("cart", [])
     comment = data.get("comment","")
+
+    if not cart:
+        await message.answer("❌ Корзина пуста.")
+        return
+
+    day = cart[0]["day"]
 
     spots = get_spots()
 
@@ -120,7 +126,8 @@ async def webapp_order(message: types.Message):
 
     pending_orders[message.from_user.id] = {
         "day": day,
-        "comment": comment
+        "comment": comment,
+        "cart": cart
     }
 
     keyboard = [
@@ -154,6 +161,7 @@ async def location_handler(message: types.Message):
     payment_state[user_id] = {
         "day": order["day"],
         "comment": order["comment"],
+        "cart": order["cart"],
         "lat": message.location.latitude,
         "lon": message.location.longitude
     }
@@ -161,7 +169,7 @@ async def location_handler(message: types.Message):
     keyboard = [
         [
             types.KeyboardButton(text="💵 Наличными"),
-            types.KeyboardButton(text="💳 Картой")
+            types.KeyboardButton(text="📱 QR перевод")
         ]
     ]
 
@@ -178,7 +186,7 @@ async def location_handler(message: types.Message):
 
 
 # ---------- ВЫБОР ОПЛАТЫ ----------
-@dp.message(F.text.in_(["💵 Наличными","💳 Картой"]))
+@dp.message(F.text.in_(["💵 Наличными","📱 QR перевод"]))
 async def payment_type(message: types.Message):
 
     user_id = message.from_user.id
@@ -196,48 +204,10 @@ async def payment_type(message: types.Message):
 
     else:
 
-        payment_state[user_id]["payment"] = "Карта"
+        payment_state[user_id]["payment"] = "QR перевод"
+        payment_state[user_id]["payment_detail"] = "QR"
 
-        keyboard = [
-            [
-                types.KeyboardButton(text="💳 Vietcombank"),
-                types.KeyboardButton(text="💳 Techcombank")
-            ],
-            [
-                types.KeyboardButton(text="💳 Momo"),
-                types.KeyboardButton(text="💳 ZaloPay")
-            ]
-        ]
-
-        markup = types.ReplyKeyboardMarkup(
-            keyboard=keyboard,
-            resize_keyboard=True,
-            one_time_keyboard=True
-        )
-
-        await message.answer(
-            "Выберите банк:",
-            reply_markup=markup
-        )
-
-
-# ---------- БАНК ----------
-@dp.message(F.text.in_([
-    "💳 Vietcombank",
-    "💳 Techcombank",
-    "💳 Momo",
-    "💳 ZaloPay"
-]))
-async def bank_payment(message: types.Message):
-
-    user_id = message.from_user.id
-
-    if user_id not in payment_state:
-        return
-
-    payment_state[user_id]["payment_detail"] = message.text
-
-    await finish_order(message)
+        await finish_order(message)
 
 
 # ---------- НАЛИЧНЫЕ ----------
@@ -270,9 +240,27 @@ async def finish_order(message):
     else:
         user = f"id:{user_id}"
 
+    cart_lines = []
+    total = 0
+
+    for item in order["cart"]:
+
+        qty = item["qty"]
+        price = item["price"]
+        day = item["day"]
+
+        subtotal = qty * price
+        total += subtotal
+
+        cart_lines.append(f"{qty} × {day} — {subtotal:,} ₫")
+
+    cart_text = "\n".join(cart_lines)
+
     admin_text = (
         "🆕 Новый заказ\n\n"
-        f"📅 День: {order['day']}\n"
+        f"{cart_text}\n\n"
+        f"💰 Итого: {total:,} ₫\n\n"
+        f"📅 День доставки: {order['day']}\n"
         f"👤 Клиент: {name}\n"
         f"{user}\n\n"
         f"💬 Комментарий: {order['comment']}\n\n"
