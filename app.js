@@ -2,6 +2,9 @@ const API = "https://food-garden-menu.onrender.com/spots"
 
 const LIMIT = 15
 
+const tg = window.Telegram.WebApp
+tg.ready()
+
 const sets = [
 
 {
@@ -56,6 +59,7 @@ menu:[
 
 const container = document.getElementById("menu")
 
+let cart = []
 
 async function loadSpots(){
 
@@ -79,8 +83,6 @@ set.spots = LIMIT
 }
 
 }
-
-
 
 function renderSets(){
 
@@ -115,9 +117,9 @@ container.appendChild(card)
 
 })
 
+renderCart()
+
 }
-
-
 
 function openSet(index){
 
@@ -148,9 +150,9 @@ ${soldOut ? "Sold Out":"Осталось мест: "+set.spots+" / "+LIMIT}
 
 <button class="orderBtn"
 ${soldOut ? "disabled":""}
-onclick="orderSet('${set.day}')">
+onclick="addToCart('${set.day}')">
 
-${soldOut ? "Недоступно" : "Заказать"}
+Добавить в корзину
 
 </button>
 
@@ -164,22 +166,106 @@ ${soldOut ? "Недоступно" : "Заказать"}
 
 }
 
+function addToCart(day){
 
+const set = sets.find(s=>s.day===day)
 
-function orderSet(day){
+const existing = cart.find(c=>c.day===day)
 
-const comment = document.getElementById("comment").value
+if(existing){
+
+existing.qty++
+
+}else{
+
+cart.push({
+day:set.day,
+price:set.price,
+qty:1
+})
+
+}
+
+renderCart()
+
+tg.showPopup({
+title:"Добавлено",
+message:"Сет добавлен в корзину",
+buttons:[{type:"ok"}]
+})
+
+}
+
+function renderCart(){
+
+let cartDiv = document.getElementById("cart")
+
+if(!cartDiv){
+
+cartDiv = document.createElement("div")
+cartDiv.id = "cart"
+document.body.appendChild(cartDiv)
+
+}
+
+if(cart.length===0){
+
+cartDiv.innerHTML = ""
+
+return
+
+}
+
+let total = 0
+
+let items = cart.map(item=>{
+
+const sum = item.price * item.qty
+total += sum
+
+return `
+<div class="cartItem">
+${item.day} × ${item.qty}
+<span>${sum.toLocaleString()} ₫</span>
+</div>
+`
+
+}).join("")
+
+cartDiv.innerHTML = `
+
+<div class="cartBox">
+
+<h3>Корзина</h3>
+
+${items}
+
+<div class="cartTotal">
+Итого: ${total.toLocaleString()} ₫
+</div>
+
+<button class="checkoutBtn" onclick="checkout()">
+Оформить заказ
+</button>
+
+</div>
+
+`
+
+}
+
+function checkout(){
+
+const comment = document.getElementById("comment")?.value || ""
 
 const order = {
-day: day,
+cart: cart,
 comment: comment
 }
 
-Telegram.WebApp.sendData(JSON.stringify(order))
+tg.sendData(JSON.stringify(order))
 
 }
-
-
 
 async function init(){
 
