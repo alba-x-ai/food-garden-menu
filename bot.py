@@ -8,7 +8,7 @@ from aiogram.filters import Command
 from aiohttp import web
 
 
-TOKEN = "8681478285:AAEHzhsTN7XkJqkEiVGpbusSm9BpNexA1Q0"
+TOKEN = "8681478285:AAF_Dr8fTLWcOGestn7fPe-Eo_2v6LgplFg"
 ADMIN_ID = 430678042
 
 LIMIT = 15
