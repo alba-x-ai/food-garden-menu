@@ -72,7 +72,7 @@ payment_state = {}
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
-    keyboard = types.InlineKeyboardMarkup(
+    menu_button = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
@@ -81,14 +81,15 @@ async def start(message: types.Message):
                         url="https://alba-x-ai.github.io/food-garden-menu/"
                     )
                 )
-            ],
-            [
-                types.InlineKeyboardButton(
-                    text="📍 Контакты",
-                    url="https://t.me/Foodgardenadmin"
-                )
             ]
         ]
+    )
+
+    reply_keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="📍 Контакты")]
+        ],
+        resize_keyboard=True
     )
 
     await message.answer(
@@ -97,7 +98,23 @@ async def start(message: types.Message):
         "📦 Доставка: Понедельник / Среда / Пятница\n"
         "⏰ 8:00–12:00\n\n"
         "Нажмите кнопку ниже, чтобы открыть меню.",
-        reply_markup=keyboard
+        reply_markup=menu_button
+    )
+
+    await message.answer(
+        "Выберите действие:",
+        reply_markup=reply_keyboard
+    )
+
+
+# ---------- КОНТАКТЫ ----------
+@dp.message(F.text == "📍 Контакты")
+async def contacts(message: types.Message):
+
+    await message.answer(
+        "📍 Food Garden\n\n"
+        "По всем вопросам:\n"
+        "https://t.me/Foodgardenadmin"
     )
 
 
