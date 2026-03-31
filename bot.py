@@ -101,10 +101,10 @@ async def start(message: types.Message):
 async def contacts(message: types.Message):
 
     await message.answer(
-        "📍 Food Garden\n\n"
+        "📍 Дананг\n\n"
         "Администратор:\n"
         "https://t.me/Foodgardenadmin\n\n"
-        "Отзывы:\n"
+        "Отзывы и вопросы:\n"
         "https://t.me/foodgardenreviews"
     )
 
