@@ -102,7 +102,6 @@ async def start(message: types.Message):
     )
 
     await message.answer(
-        "Выберите действие:",
         reply_markup=reply_keyboard
     )
 
@@ -113,8 +112,10 @@ async def contacts(message: types.Message):
 
     await message.answer(
         "📍 Food Garden\n\n"
-        "По всем вопросам:\n"
-        "https://t.me/Foodgardenadmin"
+        "Администратор:\n"
+        "https://t.me/Foodgardenadmin\n\n"
+        "Отзывы:\n"
+        "https://t.me/foodgardenreviews"
     )
 
 
@@ -159,7 +160,7 @@ async def webapp_order(message: types.Message):
 
     await message.answer(
         "✅ Заказ принят.\n\n"
-        "📍 Нажмите кнопку и отправьте геопозицию доставки.",
+        "📍 Отправьте геопозицию доставки.",
         reply_markup=markup
     )
 
@@ -252,10 +253,7 @@ async def finish_order(message):
     username = message.from_user.username
     name = message.from_user.full_name
 
-    if username:
-        user = f"@{username}"
-    else:
-        user = f"id:{user_id}"
+    user = f"@{username}" if username else f"id:{user_id}"
 
     cart_lines = []
     total = 0
