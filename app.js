@@ -1,278 +1,269 @@
-const API = "https://food-garden-menu.onrender.com/spots"
-
-const LIMIT = 15
-
 const tg = window.Telegram.WebApp
 tg.ready()
 
-const sets = [
+const lang = tg.initDataUnsafe?.user?.language_code || "en"
+const RU = lang.startsWith("ru")
 
-{
-day:"Понедельник",
-price:895000,
-spots:null,
-menu:[
-"Хлеб пшеничный с зирой",
-"Салат «Витаминный»",
-"Каша гречневая с грибами и луком",
-"Борщ",
-"Гороховый суп",
-"Говядина тушёная с картофельным пюре",
-"Куриная печень с рисом",
-"Солёные огурцы"
-]
-},
-
-{
-day:"Среда",
-price:925000,
-spots:null,
-menu:[
-"Хлеб пшеничный с орегано",
-"Салат «Летний»",
-"Перловая каша с грибами и луком",
-"Солянка",
-"Щи",
-"Котлета свиная/говяжья с гречкой",
-"Котлета куриная с овощной смесью",
-"Квашеная капуста"
-]
-},
-
-{
-day:"Пятница",
-price:967000,
-spots:null,
-menu:[
-"Хлеб пшеничный с грецкими орехами и семенами чиа и льна",
-"Свекольный салат с грецким орехом, чесноком и изюмом",
-"Гороховая каша с грибами и луком",
-"Куриный суп с сухариками",
-"Суп «Рассольник»",
-"Курица запечённая с лапшой",
-"Свиные рёбра с тушёной капустой",
-"Маринованные помидоры"
-]
+function t(ru,en){
+return RU ? ru : en
 }
 
-]
+let selectedMenu = null
+let selectedDay = null
 
-const container = document.getElementById("menu")
+let selectedSoup = null
+let selectedMain = null
+
+let bread = false
+let pies = false
 
 let cart = []
 
-async function loadSpots(){
+const menus = {
 
-try{
+russian:{
 
-const res = await fetch(API)
-const data = await res.json()
+Понедельник:{
+fix:["Салат «Летний»","Гречка с грибами","Солёные огурцы"],
+soups:["Борщ + Гороховый суп","Куриный суп + Рассольник"],
+mains:["Говядина тушёная + пюре","Котлета + гречка"]
+},
 
-sets.forEach(set=>{
-set.spots = data[set.day]
+Среда:{
+fix:["Свекольный салат","Перловка с грибами","Квашеная капуста"],
+soups:["Куриный суп + Рассольник","Солянка + Щи"],
+mains:["Котлета говяжья + гречка","Курица запечённая"]
+},
+
+Пятница:{
+fix:["Салат «Витаминный»","Гороховая каша","Маринованные помидоры"],
+soups:["Борщ + Гороховый суп","Солянка + Щи"],
+mains:["Говядина тушёная + пюре","Курица запечённая + лапша"]
+}
+
+},
+
+international:{
+
+Понедельник:{
+fix:["Greek salad","Cheese sandwich","Pickled cucumbers"],
+soups:["Shurpa + Mushroom cream soup","Kharcho + Vegetable puree soup"],
+mains:["Goulash + mashed potatoes","Teriyaki chicken + vegetables"]
+},
+
+Среда:{
+fix:["Beet salad","Cheese sandwich","Sauerkraut"],
+soups:["Kharcho + Vegetable puree soup","Lohikeitto + Tomato egg soup"],
+mains:["Kung Pao chicken + rice","Königsberg meatballs"]
+},
+
+Пятница:{
+fix:["Glass noodle salad","Cheese sandwich","Pickled tomatoes"],
+soups:["Shurpa + Mushroom cream soup","Lohikeitto + Tomato egg soup"],
+mains:["Goulash + mashed potatoes","Königsberg meatballs"]
+}
+
+}
+
+}
+
+
+
+function selectMenu(menu){
+
+selectedMenu = menu
+
+document.getElementById("menuType").classList.add("hidden")
+document.getElementById("daySelect").classList.remove("hidden")
+
+}
+
+
+
+function backToMenu(){
+
+document.getElementById("daySelect").classList.add("hidden")
+document.getElementById("menuType").classList.remove("hidden")
+
+}
+
+
+
+function selectDay(day){
+
+selectedDay = day
+
+document.getElementById("daySelect").classList.add("hidden")
+document.getElementById("mealSelect").classList.remove("hidden")
+
+renderMeals()
+
+}
+
+
+
+function backToDays(){
+
+document.getElementById("mealSelect").classList.add("hidden")
+document.getElementById("daySelect").classList.remove("hidden")
+
+}
+
+
+
+function renderMeals(){
+
+const data = menus[selectedMenu][selectedDay]
+
+document.getElementById("mealTitle").innerText =
+selectedDay + " — " + (selectedMenu==="russian"
+? t("Русское меню","Russian menu")
+: t("Интернациональное меню","International menu"))
+
+const fixDiv=document.getElementById("fix")
+fixDiv.innerHTML=data.fix.map(i=>`<div>${i}</div>`).join("")
+
+const soupsDiv=document.getElementById("soups")
+soupsDiv.innerHTML=""
+
+data.soups.forEach(soup=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=soup
+
+el.onclick=()=>{
+
+selectedSoup=soup
+
+document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+soupsDiv.appendChild(el)
+
 })
 
-}catch(e){
+const mainsDiv=document.getElementById("mains")
+mainsDiv.innerHTML=""
 
-console.log("spots error", e)
+data.mains.forEach(main=>{
 
-sets.forEach(set=>{
-set.spots = LIMIT
+const el=document.createElement("div")
+el.className="option"
+el.innerText=main
+
+el.onclick=()=>{
+
+selectedMain=main
+
+document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+mainsDiv.appendChild(el)
+
 })
 
 }
 
-}
 
-function renderSets(){
 
-container.innerHTML = ""
+function toggleBread(el){
 
-sets.forEach((set,i)=>{
-
-const soldOut = set.spots === 0
-
-const card = document.createElement("div")
-card.className = "setCard"
-
-card.innerHTML = `
-
-<h2>${set.day}</h2>
-
-<div class="price">
-${set.price.toLocaleString()} ₫
-</div>
-
-<div class="spots">
-${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
-</div>
-
-<button ${soldOut ? "disabled":""} onclick="openSet(${i})">
-${soldOut ? "Недоступно":"Посмотреть меню"}
-</button>
-
-`
-
-container.appendChild(card)
-
-})
-
-renderCart()
+bread=!bread
+el.classList.toggle("selected")
 
 }
 
-function openSet(index){
 
-const set = sets[index]
-const soldOut = set.spots === 0
 
-const menuItems = set.menu.map(i=>`<li>${i}</li>`).join("")
+function togglePies(el){
 
-container.innerHTML = `
-
-<div class="setFull">
-
-<h2>${set.day}</h2>
-
-<ul>
-${menuItems}
-</ul>
-
-<div class="priceBig">
-${set.price.toLocaleString()} ₫
-</div>
-
-<div class="spots">
-${soldOut ? "Sold Out":"Осталось мест: "+set.spots+" / "+LIMIT}
-</div>
-
-<textarea id="comment" placeholder="Комментарий к заказу (необязательно)"></textarea>
-
-<button class="orderBtn"
-${soldOut ? "disabled":""}
-onclick="addToCart('${set.day}')">
-
-Добавить в корзину
-
-</button>
-
-<button class="backBtn" onclick="renderSets()">
-← Назад
-</button>
-
-</div>
-
-`
+pies=!pies
+el.classList.toggle("selected")
 
 }
 
-function addToCart(day){
 
-const set = sets.find(s=>s.day===day)
 
-const existing = cart.find(c=>c.day===day)
+function addToCart(){
 
-if(existing){
+if(!selectedSoup || !selectedMain){
 
-existing.qty++
-
-}else{
-
-cart.push({
-day:set.day,
-price:set.price,
-qty:1
-})
-
-}
-
-renderCart()
-
-tg.showPopup({
-title:"Добавлено",
-message:"Сет добавлен в корзину",
-buttons:[{type:"ok"}]
-})
-
-}
-
-function renderCart(){
-
-let cartDiv = document.getElementById("cart")
-
-if(!cartDiv){
-
-cartDiv = document.createElement("div")
-cartDiv.id = "cart"
-document.body.appendChild(cartDiv)
-
-}
-
-if(cart.length===0){
-
-cartDiv.innerHTML = ""
-
+alert(t("Выберите суп и второе блюдо","Select soup and main dish"))
 return
 
 }
 
-let total = 0
+const comment=document.getElementById("comment").value
 
-let items = cart.map(item=>{
+const order={
+menu:selectedMenu,
+day:selectedDay,
+soup:selectedSoup,
+main:selectedMain,
+bread:bread,
+pies:pies,
+comment:comment
+}
 
-const sum = item.price * item.qty
-total += sum
+cart.push(order)
 
-return `
-<div class="cartItem">
-${item.day} × ${item.qty}
-<span>${sum.toLocaleString()} ₫</span>
-</div>
-`
-
-}).join("")
-
-cartDiv.innerHTML = `
-
-<div class="cartBox">
-
-<h3>Корзина</h3>
-
-${items}
-
-<div class="cartTotal">
-Итого: ${total.toLocaleString()} ₫
-</div>
-
-<button class="checkoutBtn" onclick="checkout()">
-Оформить заказ
-</button>
-
-</div>
-
-`
+renderCart()
 
 }
 
+
+
+function renderCart(){
+
+const cartDiv=document.getElementById("cart")
+const itemsDiv=document.getElementById("cartItems")
+
+cartDiv.classList.remove("hidden")
+
+itemsDiv.innerHTML=cart.map(i=>`
+
+<div>
+
+<b>${i.day}</b><br>
+
+${i.soup}<br>
+${i.main}<br>
+
+${i.bread ? t("Хлеб","Bread")+"<br>" : ""}
+${i.pies ? t("Пирожки","Pies")+"<br>" : ""}
+
+</div>
+
+`).join("<hr>")
+
+}
+
+
+
 function checkout(){
 
-const comment = document.getElementById("comment")?.value || ""
+if(cart.length===0){
 
-const order = {
-cart: cart,
-comment: comment
+alert(t("Корзина пуста","Cart is empty"))
+return
+
+}
+
+const order={
+cart:cart
 }
 
 tg.sendData(JSON.stringify(order))
 
-}
+setTimeout(()=>{
 
-async function init(){
+tg.close()
 
-await loadSpots()
-
-renderSets()
+},500)
 
 }
-
-init()
