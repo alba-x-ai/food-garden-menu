@@ -13,10 +13,10 @@
 <style>
 
 body{
-font-family: sans-serif;
+font-family:sans-serif;
 margin:0;
 padding:20px;
-background:#f5f5f5;
+background:#f2f2f2;
 }
 
 h1{
@@ -26,39 +26,39 @@ text-align:center;
 .card{
 background:white;
 padding:20px;
-border-radius:10px;
-margin-bottom:15px;
+border-radius:12px;
+margin-bottom:20px;
 }
 
 button{
 width:100%;
-padding:12px;
+padding:14px;
 border:none;
-border-radius:8px;
+border-radius:10px;
 margin-top:10px;
 font-size:16px;
 background:#2ecc71;
 color:white;
 }
 
-button.secondary{
-background:#3498db;
-}
-
-button.gray{
+.gray{
 background:#aaa;
 }
 
 .option{
 border:1px solid #ddd;
-border-radius:8px;
 padding:10px;
-margin-top:10px;
+border-radius:8px;
+margin-top:8px;
 cursor:pointer;
 }
 
 .option.selected{
 border:2px solid #2ecc71;
+}
+
+.hidden{
+display:none;
 }
 
 .cart{
@@ -71,21 +71,14 @@ border-top:1px solid #ddd;
 padding:15px;
 }
 
-.hidden{
-display:none;
-}
-
 </style>
 
 </head>
 
+
 <body>
 
 <h1>Food Garden</h1>
-
-<div id="app">
-
-<!-- экран выбора меню -->
 
 <div id="menuType" class="card">
 
@@ -102,32 +95,18 @@ display:none;
 </div>
 
 
-<!-- экран выбора дня -->
-
 <div id="daySelect" class="card hidden">
 
 <h2>Выберите день</h2>
 
-<button onclick="selectDay('Понедельник')">
-Понедельник
-</button>
+<button onclick="selectDay('Понедельник')">Понедельник</button>
+<button onclick="selectDay('Среда')">Среда</button>
+<button onclick="selectDay('Пятница')">Пятница</button>
 
-<button onclick="selectDay('Среда')">
-Среда
-</button>
-
-<button onclick="selectDay('Пятница')">
-Пятница
-</button>
-
-<button class="gray" onclick="backToMenu()">
-← Назад
-</button>
+<button class="gray" onclick="backToMenu()">← Назад</button>
 
 </div>
 
-
-<!-- экран выбора блюд -->
 
 <div id="mealSelect" class="card hidden">
 
@@ -136,47 +115,31 @@ display:none;
 <h3>Фикс</h3>
 <div id="fix"></div>
 
-<h3>Суп (выберите)</h3>
+<h3>Суп</h3>
 <div id="soups"></div>
 
-<h3>Второе (выберите)</h3>
+<h3>Второе</h3>
 <div id="mains"></div>
 
 <h3>Дополнительно</h3>
 
-<div class="option" onclick="toggleBread(this)">
-Хлеб
-</div>
+<div class="option" onclick="toggleBread(this)">Хлеб</div>
+<div class="option" onclick="togglePies(this)">Пирожки</div>
 
-<div class="option" onclick="togglePies(this)">
-Пирожки
-</div>
+<textarea id="comment" placeholder="Комментарий"></textarea>
 
-<textarea id="comment" placeholder="Комментарий к заказу"></textarea>
+<button onclick="addToCart()">Добавить в корзину</button>
 
-<button onclick="addToCart()">
-Добавить в корзину
-</button>
-
-<button class="gray" onclick="backToDays()">
-← Назад
-</button>
+<button class="gray" onclick="backToDays()">← Назад</button>
 
 </div>
 
-
-</div>
-
-
-<!-- корзина -->
 
 <div id="cart" class="cart hidden">
 
 <div id="cartItems"></div>
 
-<button onclick="checkout()">
-Оформить заказ
-</button>
+<button onclick="checkout()">Оформить заказ</button>
 
 </div>
 
@@ -185,6 +148,246 @@ display:none;
 
 const tg = window.Telegram.WebApp
 tg.ready()
+
+let selectedMenu=null
+let selectedDay=null
+let selectedSoup=null
+let selectedMain=null
+let bread=false
+let pies=false
+
+let cart=[]
+
+
+const menus={
+
+russian:{
+
+Понедельник:{
+fix:["Салат «Летний»","Гречка с грибами","Солёные огурцы"],
+soups:["Борщ + Гороховый суп","Куриный суп + Рассольник"],
+mains:["Говядина тушёная + пюре","Котлета + гречка"]
+},
+
+Среда:{
+fix:["Свекольный салат","Перловка с грибами","Квашеная капуста"],
+soups:["Куриный суп + Рассольник","Солянка + Щи"],
+mains:["Котлета + гречка","Курица запечённая"]
+},
+
+Пятница:{
+fix:["Салат «Витаминный»","Гороховая каша","Маринованные помидоры"],
+soups:["Борщ + Гороховый суп","Солянка + Щи"],
+mains:["Говядина + пюре","Курица + лапша"]
+}
+
+},
+
+international:{
+
+Понедельник:{
+fix:["Греческий салат","Бутерброд с сыром","Солёные огурцы"],
+soups:["Шурпа + Крем-суп грибной","Харчо + Овощной суп"],
+mains:["Гуляш + пюре","Курица терияки"]
+},
+
+Среда:{
+fix:["Свекольный салат","Бутерброд с сыром","Квашеная капуста"],
+soups:["Харчо + Овощной суп","Lohikeitto + Яичный суп"],
+mains:["Курица Кун Пао","Кёнигсбергские клопсы"]
+},
+
+Пятница:{
+fix:["Салат с фунчозой","Бутерброд с сыром","Маринованные помидоры"],
+soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яичный суп"],
+mains:["Гуляш + пюре","Кёнигсбергские клопсы"]
+}
+
+}
+
+}
+
+
+
+function selectMenu(menu){
+
+selectedMenu=menu
+
+document.getElementById("menuType").classList.add("hidden")
+document.getElementById("daySelect").classList.remove("hidden")
+
+}
+
+
+function backToMenu(){
+
+document.getElementById("daySelect").classList.add("hidden")
+document.getElementById("menuType").classList.remove("hidden")
+
+}
+
+
+function selectDay(day){
+
+selectedDay=day
+
+document.getElementById("daySelect").classList.add("hidden")
+document.getElementById("mealSelect").classList.remove("hidden")
+
+renderMeals()
+
+}
+
+
+function backToDays(){
+
+document.getElementById("mealSelect").classList.add("hidden")
+document.getElementById("daySelect").classList.remove("hidden")
+
+}
+
+
+function renderMeals(){
+
+const data=menus[selectedMenu][selectedDay]
+
+document.getElementById("mealTitle").innerText=selectedDay
+
+const fixDiv=document.getElementById("fix")
+fixDiv.innerHTML=data.fix.map(i=>`<div>${i}</div>`).join("")
+
+const soupsDiv=document.getElementById("soups")
+soupsDiv.innerHTML=""
+
+data.soups.forEach(s=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=s
+
+el.onclick=()=>{
+
+selectedSoup=s
+
+document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+soupsDiv.appendChild(el)
+
+})
+
+const mainsDiv=document.getElementById("mains")
+mainsDiv.innerHTML=""
+
+data.mains.forEach(m=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=m
+
+el.onclick=()=>{
+
+selectedMain=m
+
+document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+mainsDiv.appendChild(el)
+
+})
+
+}
+
+
+function toggleBread(el){
+
+bread=!bread
+el.classList.toggle("selected")
+
+}
+
+
+function togglePies(el){
+
+pies=!pies
+el.classList.toggle("selected")
+
+}
+
+
+function addToCart(){
+
+if(!selectedSoup||!selectedMain){
+
+alert("Выберите суп и второе")
+return
+
+}
+
+const comment=document.getElementById("comment").value
+
+cart.push({
+
+menu:selectedMenu,
+day:selectedDay,
+soup:selectedSoup,
+main:selectedMain,
+bread:bread,
+pies:pies,
+comment:comment
+
+})
+
+renderCart()
+
+}
+
+
+function renderCart(){
+
+const cartDiv=document.getElementById("cart")
+const items=document.getElementById("cartItems")
+
+cartDiv.classList.remove("hidden")
+
+items.innerHTML=cart.map(i=>`
+
+<div>
+
+<b>${i.day}</b><br>
+${i.soup}<br>
+${i.main}<br>
+
+${i.bread?"Хлеб<br>":""}
+${i.pies?"Пирожки<br>":""}
+
+</div>
+
+`).join("<hr>")
+
+}
+
+
+function checkout(){
+
+if(cart.length===0){
+alert("Корзина пуста")
+return
+}
+
+tg.sendData(JSON.stringify({cart:cart}))
+
+setTimeout(()=>{
+
+tg.close()
+
+},500)
+
+}
 
 </script>
 
