@@ -13,17 +13,21 @@
 <style>
 
 body{
-font-family:sans-serif;
+font-family: sans-serif;
 margin:0;
 padding:20px;
 background:#f5f5f5;
 }
 
-.setCard{
+h1{
+text-align:center;
+}
+
+.card{
 background:white;
 padding:20px;
 border-radius:10px;
-margin-bottom:20px;
+margin-bottom:15px;
 }
 
 button{
@@ -37,14 +41,24 @@ background:#2ecc71;
 color:white;
 }
 
-button:disabled{
-background:#ccc;
+button.secondary{
+background:#3498db;
 }
 
-.setFull{
-background:white;
-padding:20px;
-border-radius:10px;
+button.gray{
+background:#aaa;
+}
+
+.option{
+border:1px solid #ddd;
+border-radius:8px;
+padding:10px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.option.selected{
+border:2px solid #2ecc71;
 }
 
 .cart{
@@ -53,8 +67,12 @@ bottom:0;
 left:0;
 right:0;
 background:white;
-padding:15px;
 border-top:1px solid #ddd;
+padding:15px;
+}
+
+.hidden{
+display:none;
 }
 
 </style>
@@ -63,217 +81,98 @@ border-top:1px solid #ddd;
 
 <body>
 
-<div id="menu"></div>
+<h1>Food Garden</h1>
 
-<div id="cart"></div>
+<div id="app">
 
-<script>
+<!-- экран выбора меню -->
 
-const tg = window.Telegram.WebApp
-tg.ready()
+<div id="menuType" class="card">
 
-const API = "https://food-garden-menu.onrender.com/spots"
+<h2>Выберите меню</h2>
 
-const LIMIT = 15
+<button onclick="selectMenu('russian')">
+🇷🇺 Русское меню
+</button>
 
-let cart = []
+<button onclick="selectMenu('international')">
+🌍 Интернациональное меню
+</button>
 
-const sets = [
-
-{
-day:"Понедельник",
-price:895000,
-spots:null,
-menu:[
-"Хлеб пшеничный с зирой",
-"Салат «Витаминный»",
-"Каша гречневая с грибами и луком",
-"Борщ",
-"Гороховый суп",
-"Говядина тушёная",
-"Куриная печень",
-"Солёные огурцы"
-]
-},
-
-{
-day:"Среда",
-price:925000,
-spots:null,
-menu:[
-"Хлеб с орегано",
-"Салат «Летний»",
-"Перловка с грибами",
-"Солянка",
-"Щи",
-"Котлета свинина/говядина",
-"Куриная котлета",
-"Квашеная капуста"
-]
-},
-
-{
-day:"Пятница",
-price:967000,
-spots:null,
-menu:[
-"Хлеб с орехами",
-"Свекольный салат",
-"Гороховая каша",
-"Куриный суп",
-"Рассольник",
-"Курица с лапшой",
-"Свиные рёбра",
-"Маринованные помидоры"
-]
-}
-
-]
-
-const container = document.getElementById("menu")
-
-async function loadSpots(){
-
-try{
-
-const res = await fetch(API)
-const data = await res.json()
-
-sets.forEach(set=>{
-set.spots = data[set.day]
-})
-
-}catch(e){
-
-sets.forEach(set=>{
-set.spots = LIMIT
-})
-
-}
-
-}
-
-function renderSets(){
-
-container.innerHTML=""
-
-sets.forEach((set,i)=>{
-
-const soldOut = set.spots===0
-
-const card=document.createElement("div")
-card.className="setCard"
-
-card.innerHTML=`
-
-<h2>${set.day}</h2>
-
-<div>${set.price.toLocaleString()} ₫</div>
-
-<div>
-${soldOut ? "Sold Out" : "Осталось мест: "+set.spots+" / "+LIMIT}
 </div>
 
-<button ${soldOut?"disabled":""} onclick="openSet(${i})">
-${soldOut?"Недоступно":"Посмотреть меню"}
+
+<!-- экран выбора дня -->
+
+<div id="daySelect" class="card hidden">
+
+<h2>Выберите день</h2>
+
+<button onclick="selectDay('Понедельник')">
+Понедельник
 </button>
 
-`
-
-container.appendChild(card)
-
-})
-
-renderCart()
-
-}
-
-function openSet(index){
-
-const set=sets[index]
-
-const menuItems=set.menu.map(i=>`<li>${i}</li>`).join("")
-
-container.innerHTML=`
-
-<div class="setFull">
-
-<h2>${set.day}</h2>
-
-<ul>${menuItems}</ul>
-
-<div>${set.price.toLocaleString()} ₫</div>
-
-<textarea id="comment" placeholder="Комментарий"></textarea>
-
-<button onclick="addToCart('${set.day}')">
-Добавить в корзину
+<button onclick="selectDay('Среда')">
+Среда
 </button>
 
-<button onclick="renderSets()">
+<button onclick="selectDay('Пятница')">
+Пятница
+</button>
+
+<button class="gray" onclick="backToMenu()">
 ← Назад
 </button>
 
 </div>
 
-`
 
-}
+<!-- экран выбора блюд -->
 
-function addToCart(day){
+<div id="mealSelect" class="card hidden">
 
-const set=sets.find(s=>s.day===day)
+<h2 id="mealTitle"></h2>
 
-const existing=cart.find(c=>c.day===day)
+<h3>Фикс</h3>
+<div id="fix"></div>
 
-if(existing){
+<h3>Суп (выберите)</h3>
+<div id="soups"></div>
 
-existing.qty++
+<h3>Второе (выберите)</h3>
+<div id="mains"></div>
 
-}else{
+<h3>Дополнительно</h3>
 
-cart.push({
-day:set.day,
-price:set.price,
-qty:1
-})
+<div class="option" onclick="toggleBread(this)">
+Хлеб
+</div>
 
-}
+<div class="option" onclick="togglePies(this)">
+Пирожки
+</div>
 
-alert("Добавлено в корзину")
+<textarea id="comment" placeholder="Комментарий к заказу"></textarea>
 
-renderCart()
+<button onclick="addToCart()">
+Добавить в корзину
+</button>
 
-}
+<button class="gray" onclick="backToDays()">
+← Назад
+</button>
 
-function renderCart(){
+</div>
 
-const cartDiv=document.getElementById("cart")
 
-if(cart.length===0){
+</div>
 
-cartDiv.innerHTML=""
-return
 
-}
+<!-- корзина -->
 
-let total=0
+<div id="cart" class="cart hidden">
 
-cart.forEach(item=>{
-total+=item.price*item.qty
-})
-
-cartDiv.innerHTML=`
-
-<div class="cart">
-
-<b>Корзина</b><br>
-
-${cart.map(i=>`${i.day} × ${i.qty}`).join("<br>")}
-
-<br><br>
-
-<b>${total.toLocaleString()} ₫</b>
+<div id="cartItems"></div>
 
 <button onclick="checkout()">
 Оформить заказ
@@ -281,37 +180,13 @@ ${cart.map(i=>`${i.day} × ${i.qty}`).join("<br>")}
 
 </div>
 
-`
 
-}
+<script>
 
-function checkout(){
-
-const comment=document.getElementById("comment")?.value || ""
-
-const order={
-cart:cart,
-comment:comment
-}
-
-tg.sendData(JSON.stringify(order))
-
-tg.close()
-
-}
-
-async function init(){
-
-await loadSpots()
-
-renderSets()
-
-}
-
-init()
+const tg = window.Telegram.WebApp
+tg.ready()
 
 </script>
 
 </body>
-
 </html>
