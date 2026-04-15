@@ -1,23 +1,32 @@
 const tg = window.Telegram.WebApp
 tg.ready()
 
-const lang = tg.initDataUnsafe?.user?.language_code || "en"
-const RU = lang.startsWith("ru")
-
-function t(ru,en){
-return RU ? ru : en
-}
-
 let selectedMenu = null
 let selectedDay = null
 
 let selectedSoup = null
 let selectedMain = null
 
-let bread = false
-let pies = false
+let selectedBread = null
+let selectedPies = null
 
 let cart = []
+
+
+
+const breads = [
+"Пшеничный с орегано",
+"Пшеничный с грецкими орехами и семенами чиа и льна",
+"Пшеничный с зирой"
+]
+
+const piesOptions = [
+"С капустой",
+"С картошкой",
+"С яйцом, луком и рисом"
+]
+
+
 
 const menus = {
 
@@ -32,13 +41,13 @@ mains:["Говядина тушёная + пюре","Котлета + гречк
 Среда:{
 fix:["Свекольный салат","Перловка с грибами","Квашеная капуста"],
 soups:["Куриный суп + Рассольник","Солянка + Щи"],
-mains:["Котлета говяжья + гречка","Курица запечённая"]
+mains:["Котлета + гречка","Курица запечённая"]
 },
 
 Пятница:{
 fix:["Салат «Витаминный»","Гороховая каша","Маринованные помидоры"],
 soups:["Борщ + Гороховый суп","Солянка + Щи"],
-mains:["Говядина тушёная + пюре","Курица запечённая + лапша"]
+mains:["Говядина + пюре","Курица + лапша"]
 }
 
 },
@@ -46,21 +55,21 @@ mains:["Говядина тушёная + пюре","Курица запечён
 international:{
 
 Понедельник:{
-fix:["Greek salad","Cheese sandwich","Pickled cucumbers"],
-soups:["Shurpa + Mushroom cream soup","Kharcho + Vegetable puree soup"],
-mains:["Goulash + mashed potatoes","Teriyaki chicken + vegetables"]
+fix:["Греческий салат","Бутерброд с сыром","Солёные огурцы"],
+soups:["Шурпа + Крем-суп грибной","Харчо + Овощной суп"],
+mains:["Гуляш + пюре","Курица терияки"]
 },
 
 Среда:{
-fix:["Beet salad","Cheese sandwich","Sauerkraut"],
-soups:["Kharcho + Vegetable puree soup","Lohikeitto + Tomato egg soup"],
-mains:["Kung Pao chicken + rice","Königsberg meatballs"]
+fix:["Свекольный салат","Бутерброд с сыром","Квашеная капуста"],
+soups:["Харчо + Овощной суп","Lohikeitto + Яичный суп"],
+mains:["Курица Кун Пао","Кёнигсбергские клопсы"]
 },
 
 Пятница:{
-fix:["Glass noodle salad","Cheese sandwich","Pickled tomatoes"],
-soups:["Shurpa + Mushroom cream soup","Lohikeitto + Tomato egg soup"],
-mains:["Goulash + mashed potatoes","Königsberg meatballs"]
+fix:["Салат с фунчозой","Бутерброд с сыром","Маринованные помидоры"],
+soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яичный суп"],
+mains:["Гуляш + пюре","Кёнигсбергские клопсы"]
 }
 
 }
@@ -115,26 +124,25 @@ function renderMeals(){
 
 const data = menus[selectedMenu][selectedDay]
 
-document.getElementById("mealTitle").innerText =
-selectedDay + " — " + (selectedMenu==="russian"
-? t("Русское меню","Russian menu")
-: t("Интернациональное меню","International menu"))
+document.getElementById("mealTitle").innerText = selectedDay
 
-const fixDiv=document.getElementById("fix")
-fixDiv.innerHTML=data.fix.map(i=>`<div>${i}</div>`).join("")
+const fixDiv = document.getElementById("fix")
+fixDiv.innerHTML = data.fix.map(i=>`<div>${i}</div>`).join("")
 
-const soupsDiv=document.getElementById("soups")
-soupsDiv.innerHTML=""
 
-data.soups.forEach(soup=>{
 
-const el=document.createElement("div")
+const soupsDiv = document.getElementById("soups")
+soupsDiv.innerHTML = ""
+
+data.soups.forEach(s=>{
+
+const el = document.createElement("div")
 el.className="option"
-el.innerText=soup
+el.innerText=s
 
 el.onclick=()=>{
 
-selectedSoup=soup
+selectedSoup=s
 
 document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
 el.classList.add("selected")
@@ -145,18 +153,20 @@ soupsDiv.appendChild(el)
 
 })
 
+
+
 const mainsDiv=document.getElementById("mains")
 mainsDiv.innerHTML=""
 
-data.mains.forEach(main=>{
+data.mains.forEach(m=>{
 
 const el=document.createElement("div")
 el.className="option"
-el.innerText=main
+el.innerText=m
 
 el.onclick=()=>{
 
-selectedMain=main
+selectedMain=m
 
 document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
 el.classList.add("selected")
@@ -167,23 +177,62 @@ mainsDiv.appendChild(el)
 
 })
 
-}
 
-
-
-function toggleBread(el){
-
-bread=!bread
-el.classList.toggle("selected")
+renderExtras()
 
 }
 
 
 
-function togglePies(el){
+function renderExtras(){
 
-pies=!pies
-el.classList.toggle("selected")
+
+
+const breadDiv=document.getElementById("breadOptions")
+breadDiv.innerHTML=""
+
+breads.forEach(b=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=b
+
+el.onclick=()=>{
+
+selectedBread=b
+
+document.querySelectorAll("#breadOptions .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+breadDiv.appendChild(el)
+
+})
+
+
+
+const piesDiv=document.getElementById("piesOptions")
+piesDiv.innerHTML=""
+
+piesOptions.forEach(p=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=p
+
+el.onclick=()=>{
+
+selectedPies=p
+
+document.querySelectorAll("#piesOptions .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+
+}
+
+piesDiv.appendChild(el)
+
+})
 
 }
 
@@ -193,24 +242,24 @@ function addToCart(){
 
 if(!selectedSoup || !selectedMain){
 
-alert(t("Выберите суп и второе блюдо","Select soup and main dish"))
+alert("Выберите суп и второе блюдо")
 return
 
 }
 
 const comment=document.getElementById("comment").value
 
-const order={
+cart.push({
+
 menu:selectedMenu,
 day:selectedDay,
 soup:selectedSoup,
 main:selectedMain,
-bread:bread,
-pies:pies,
+bread:selectedBread,
+pies:selectedPies,
 comment:comment
-}
 
-cart.push(order)
+})
 
 renderCart()
 
@@ -221,11 +270,11 @@ renderCart()
 function renderCart(){
 
 const cartDiv=document.getElementById("cart")
-const itemsDiv=document.getElementById("cartItems")
+const items=document.getElementById("cartItems")
 
 cartDiv.classList.remove("hidden")
 
-itemsDiv.innerHTML=cart.map(i=>`
+items.innerHTML=cart.map(i=>`
 
 <div>
 
@@ -234,8 +283,8 @@ itemsDiv.innerHTML=cart.map(i=>`
 ${i.soup}<br>
 ${i.main}<br>
 
-${i.bread ? t("Хлеб","Bread")+"<br>" : ""}
-${i.pies ? t("Пирожки","Pies")+"<br>" : ""}
+${i.bread ? "Хлеб: "+i.bread+"<br>" : ""}
+${i.pies ? "Пирожки: "+i.pies+"<br>" : ""}
 
 </div>
 
@@ -249,16 +298,12 @@ function checkout(){
 
 if(cart.length===0){
 
-alert(t("Корзина пуста","Cart is empty"))
+alert("Корзина пуста")
 return
 
 }
 
-const order={
-cart:cart
-}
-
-tg.sendData(JSON.stringify(order))
+tg.sendData(JSON.stringify({cart:cart}))
 
 setTimeout(()=>{
 
