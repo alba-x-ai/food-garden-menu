@@ -75,7 +75,6 @@ padding:15px;
 
 </head>
 
-
 <body>
 
 <h1>Food Garden</h1>
@@ -84,13 +83,8 @@ padding:15px;
 
 <h2>Выберите меню</h2>
 
-<button onclick="selectMenu('russian')">
-🇷🇺 Русское меню
-</button>
-
-<button onclick="selectMenu('international')">
-🌍 Интернациональное меню
-</button>
+<button onclick="selectMenu('russian')">🇷🇺 Русское меню</button>
+<button onclick="selectMenu('international')">🌍 Интернациональное меню</button>
 
 </div>
 
@@ -121,10 +115,13 @@ padding:15px;
 <h3>Второе</h3>
 <div id="mains"></div>
 
-<h3>Дополнительно</h3>
+<!-- 🔥 ВАЖНО: НОВЫЕ БЛОКИ -->
 
-<div class="option" onclick="toggleBread(this)">Хлеб</div>
-<div class="option" onclick="togglePies(this)">Пирожки</div>
+<h3>Хлеб</h3>
+<div id="breadOptions"></div>
+
+<h3>Пирожки</h3>
+<div id="piesOptions"></div>
 
 <textarea id="comment" placeholder="Комментарий"></textarea>
 
@@ -153,97 +150,88 @@ let selectedMenu=null
 let selectedDay=null
 let selectedSoup=null
 let selectedMain=null
-let bread=false
-let pies=false
+
+let selectedBread=null
+let selectedPies=null
 
 let cart=[]
+
+
+const breads=[
+"Пшеничный с орегано",
+"Пшеничный с орехами и семенами",
+"Пшеничный с зирой"
+]
+
+const piesOptions=[
+"С капустой",
+"С картошкой",
+"С яйцом, луком и рисом"
+]
 
 
 const menus={
 
 russian:{
-
 Понедельник:{
-fix:["Салат «Летний»","Гречка с грибами","Солёные огурцы"],
-soups:["Борщ + Гороховый суп","Куриный суп + Рассольник"],
-mains:["Говядина тушёная + пюре","Котлета + гречка"]
+fix:["Салат «Летний»","Гречка","Огурцы"],
+soups:["Борщ","Куриный суп"],
+mains:["Говядина + пюре","Котлета + гречка"]
 },
-
 Среда:{
-fix:["Свекольный салат","Перловка с грибами","Квашеная капуста"],
-soups:["Куриный суп + Рассольник","Солянка + Щи"],
-mains:["Котлета + гречка","Курица запечённая"]
+fix:["Свекольный салат","Перловка","Капуста"],
+soups:["Куриный суп","Солянка"],
+mains:["Котлета","Курица"]
 },
-
 Пятница:{
-fix:["Салат «Витаминный»","Гороховая каша","Маринованные помидоры"],
-soups:["Борщ + Гороховый суп","Солянка + Щи"],
-mains:["Говядина + пюре","Курица + лапша"]
+fix:["Салат","Гороховая каша","Помидоры"],
+soups:["Борщ","Солянка"],
+mains:["Говядина","Курица"]
 }
-
 },
 
 international:{
-
 Понедельник:{
-fix:["Греческий салат","Бутерброд с сыром","Солёные огурцы"],
-soups:["Шурпа + Крем-суп грибной","Харчо + Овощной суп"],
-mains:["Гуляш + пюре","Курица терияки"]
+fix:["Greek salad","Sandwich","Cucumbers"],
+soups:["Shurpa","Kharcho"],
+mains:["Goulash","Teriyaki chicken"]
 },
-
 Среда:{
-fix:["Свекольный салат","Бутерброд с сыром","Квашеная капуста"],
-soups:["Харчо + Овощной суп","Lohikeitto + Яичный суп"],
-mains:["Курица Кун Пао","Кёнигсбергские клопсы"]
+fix:["Beet salad","Sandwich","Cabbage"],
+soups:["Kharcho","Lohikeitto"],
+mains:["Kung Pao","Meatballs"]
 },
-
 Пятница:{
-fix:["Салат с фунчозой","Бутерброд с сыром","Маринованные помидоры"],
-soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яичный суп"],
-mains:["Гуляш + пюре","Кёнигсбергские клопсы"]
+fix:["Salad","Sandwich","Tomatoes"],
+soups:["Shurpa","Lohikeitto"],
+mains:["Goulash","Meatballs"]
+}
 }
 
 }
-
-}
-
 
 
 function selectMenu(menu){
-
 selectedMenu=menu
-
-document.getElementById("menuType").classList.add("hidden")
-document.getElementById("daySelect").classList.remove("hidden")
-
+menuType.classList.add("hidden")
+daySelect.classList.remove("hidden")
 }
-
 
 function backToMenu(){
-
-document.getElementById("daySelect").classList.add("hidden")
-document.getElementById("menuType").classList.remove("hidden")
-
+daySelect.classList.add("hidden")
+menuType.classList.remove("hidden")
 }
-
 
 function selectDay(day){
-
 selectedDay=day
-
-document.getElementById("daySelect").classList.add("hidden")
-document.getElementById("mealSelect").classList.remove("hidden")
-
+daySelect.classList.add("hidden")
+mealSelect.classList.remove("hidden")
 renderMeals()
-
 }
 
-
 function backToDays(){
-
-document.getElementById("mealSelect").classList.add("hidden")
-document.getElementById("daySelect").classList.remove("hidden")
-
+mealSelect.classList.add("hidden")
+daySelect.classList.remove("hidden")
 }
 
 
@@ -251,95 +239,93 @@ function renderMeals(){
 
 const data=menus[selectedMenu][selectedDay]
 
-document.getElementById("mealTitle").innerText=selectedDay
+mealTitle.innerText=selectedDay
 
-const fixDiv=document.getElementById("fix")
-fixDiv.innerHTML=data.fix.map(i=>`<div>${i}</div>`).join("")
+fix.innerHTML=data.fix.join("<br>")
 
-const soupsDiv=document.getElementById("soups")
-soupsDiv.innerHTML=""
 
+soups.innerHTML=""
 data.soups.forEach(s=>{
-
 const el=document.createElement("div")
 el.className="option"
 el.innerText=s
-
 el.onclick=()=>{
-
 selectedSoup=s
-
 document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
 el.classList.add("selected")
-
 }
-
-soupsDiv.appendChild(el)
-
+soups.appendChild(el)
 })
 
-const mainsDiv=document.getElementById("mains")
-mainsDiv.innerHTML=""
 
+mains.innerHTML=""
 data.mains.forEach(m=>{
-
 const el=document.createElement("div")
 el.className="option"
 el.innerText=m
-
 el.onclick=()=>{
-
 selectedMain=m
-
 document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
 el.classList.add("selected")
+}
+mains.appendChild(el)
+})
+
+
+renderExtras()
 
 }
 
-mainsDiv.appendChild(el)
 
+function renderExtras(){
+
+breadOptions.innerHTML=""
+breads.forEach(b=>{
+const el=document.createElement("div")
+el.className="option"
+el.innerText=b
+el.onclick=()=>{
+selectedBread=b
+document.querySelectorAll("#breadOptions .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+}
+breadOptions.appendChild(el)
+})
+
+
+piesOptions.innerHTML=""
+piesOptionsArr.forEach(p=>{
+const el=document.createElement("div")
+el.className="option"
+el.innerText=p
+el.onclick=()=>{
+selectedPies=p
+document.querySelectorAll("#piesOptions .option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+}
+piesOptions.appendChild(el)
 })
 
 }
 
 
-function toggleBread(el){
-
-bread=!bread
-el.classList.toggle("selected")
-
-}
-
-
-function togglePies(el){
-
-pies=!pies
-el.classList.toggle("selected")
-
-}
+const piesOptionsArr = piesOptions
 
 
 function addToCart(){
 
 if(!selectedSoup||!selectedMain){
-
 alert("Выберите суп и второе")
 return
-
 }
 
-const comment=document.getElementById("comment").value
-
 cart.push({
-
 menu:selectedMenu,
 day:selectedDay,
 soup:selectedSoup,
 main:selectedMain,
-bread:bread,
-pies:pies,
-comment:comment
-
+bread:selectedBread,
+pies:selectedPies
 })
 
 renderCart()
@@ -349,24 +335,16 @@ renderCart()
 
 function renderCart(){
 
-const cartDiv=document.getElementById("cart")
-const items=document.getElementById("cartItems")
+cart.classList.remove("hidden")
 
-cartDiv.classList.remove("hidden")
-
-items.innerHTML=cart.map(i=>`
-
+cartItems.innerHTML=cart.map(i=>`
 <div>
-
 <b>${i.day}</b><br>
 ${i.soup}<br>
 ${i.main}<br>
-
-${i.bread?"Хлеб<br>":""}
-${i.pies?"Пирожки<br>":""}
-
+${i.bread? "Хлеб: "+i.bread+"<br>":""}
+${i.pies? "Пирожки: "+i.pies+"<br>":""}
 </div>
-
 `).join("<hr>")
 
 }
@@ -381,11 +359,7 @@ return
 
 tg.sendData(JSON.stringify({cart:cart}))
 
-setTimeout(()=>{
-
-tg.close()
-
-},500)
+setTimeout(()=>tg.close(),500)
 
 }
 
