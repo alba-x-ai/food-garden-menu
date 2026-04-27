@@ -1,314 +1,200 @@
 const tg = window.Telegram.WebApp
 tg.ready()
 
-let selectedMenu = null
-let selectedDay = null
-
-let selectedSoup = null
-let selectedMain = null
-
-let selectedBread = null
-let selectedPies = null
-
 let cart = []
 
-
-
-const breads = [
+const breadOptions = [
 "Пшеничный с орегано",
-"Пшеничный с грецкими орехами и семенами чиа и льна",
+"Пшеничный с грецкими орехами и семенами",
 "Пшеничный с зирой"
 ]
 
-const piesOptions = [
+const pieOptions = [
 "С капустой",
 "С картошкой",
 "С яйцом, луком и рисом"
 ]
 
+const sets = [
 
-
-const menus = {
-
-russian:{
-
-Понедельник:{
-fix:["Салат «Летний»","Гречка с грибами","Солёные огурцы"],
-soups:["Борщ + Гороховый суп","Куриный суп + Рассольник"],
-mains:["Говядина тушёная + пюре","Котлета + гречка"]
+{
+day:"Понедельник",
+fixed:[
+"Греческий салат",
+"Бутерброд с сыром",
+"Солёные огурцы"
+],
+soups:[
+"Шурпа + Крем-суп грибной",
+"Харчо + Овощной суп-пюре"
+],
+mains:[
+"Гуляш + Курица терияки",
+"Курица Кун Пао + Ломо сальтадо"
+]
 },
 
-Среда:{
-fix:["Свекольный салат","Перловка с грибами","Квашеная капуста"],
-soups:["Куриный суп + Рассольник","Солянка + Щи"],
-mains:["Котлета + гречка","Курица запечённая"]
+{
+day:"Среда",
+fixed:[
+"Свекольный салат",
+"Бутерброд с сыром",
+"Квашеная капуста"
+],
+soups:[
+"Харчо + Овощной суп-пюре",
+"Lohikeitto + Яично-помидорный"
+],
+mains:[
+"Курица Кун Пао + Ломо сальтадо",
+"Кёнигсбергские клопсы + Индийское карри"
+]
 },
 
-Пятница:{
-fix:["Салат «Витаминный»","Гороховая каша","Маринованные помидоры"],
-soups:["Борщ + Гороховый суп","Солянка + Щи"],
-mains:["Говядина + пюре","Курица + лапша"]
+{
+day:"Пятница",
+fixed:[
+"Салат с фунчозой",
+"Бутерброд с сыром",
+"Маринованные помидоры"
+],
+soups:[
+"Шурпа + Крем-суп грибной",
+"Lohikeitto + Яично-помидорный"
+],
+mains:[
+"Гуляш + Курица терияки",
+"Кёнигсбергские клопсы + Индийское карри"
+]
 }
 
-},
+]
 
-international:{
+const container = document.getElementById("menu")
 
-Понедельник:{
-fix:["Греческий салат","Бутерброд с сыром","Солёные огурцы"],
-soups:["Шурпа + Крем-суп грибной","Харчо + Овощной суп"],
-mains:["Гуляш + пюре","Курица терияки"]
-},
+function renderDays(){
 
-Среда:{
-fix:["Свекольный салат","Бутерброд с сыром","Квашеная капуста"],
-soups:["Харчо + Овощной суп","Lohikeitto + Яичный суп"],
-mains:["Курица Кун Пао","Кёнигсбергские клопсы"]
-},
+container.innerHTML=""
 
-Пятница:{
-fix:["Салат с фунчозой","Бутерброд с сыром","Маринованные помидоры"],
-soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яичный суп"],
-mains:["Гуляш + пюре","Кёнигсбергские клопсы"]
-}
+sets.forEach((set,i)=>{
 
-}
-
-}
-
-
-
-function selectMenu(menu){
-
-selectedMenu = menu
-
-document.getElementById("menuType").classList.add("hidden")
-document.getElementById("daySelect").classList.remove("hidden")
-
-}
-
-
-
-function backToMenu(){
-
-document.getElementById("daySelect").classList.add("hidden")
-document.getElementById("menuType").classList.remove("hidden")
-
-}
-
-
-
-function selectDay(day){
-
-selectedDay = day
-
-document.getElementById("daySelect").classList.add("hidden")
-document.getElementById("mealSelect").classList.remove("hidden")
-
-renderMeals()
-
-}
-
-
-
-function backToDays(){
-
-document.getElementById("mealSelect").classList.add("hidden")
-document.getElementById("daySelect").classList.remove("hidden")
-
-}
-
-
-
-function renderMeals(){
-
-const data = menus[selectedMenu][selectedDay]
-
-document.getElementById("mealTitle").innerText = selectedDay
-
-const fixDiv = document.getElementById("fix")
-fixDiv.innerHTML = data.fix.map(i=>`<div>${i}</div>`).join("")
-
-
-
-const soupsDiv = document.getElementById("soups")
-soupsDiv.innerHTML = ""
-
-data.soups.forEach(s=>{
-
-const el = document.createElement("div")
-el.className="option"
-el.innerText=s
-
-el.onclick=()=>{
-
-selectedSoup=s
-
-document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-
-}
-
-soupsDiv.appendChild(el)
-
-})
-
-
-
-const mainsDiv=document.getElementById("mains")
-mainsDiv.innerHTML=""
-
-data.mains.forEach(m=>{
-
-const el=document.createElement("div")
-el.className="option"
-el.innerText=m
-
-el.onclick=()=>{
-
-selectedMain=m
-
-document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-
-}
-
-mainsDiv.appendChild(el)
-
-})
-
-
-renderExtras()
-
-}
-
-
-
-function renderExtras(){
-
-
-
-const breadDiv=document.getElementById("breadOptions")
-breadDiv.innerHTML=""
-
-breads.forEach(b=>{
-
-const el=document.createElement("div")
-el.className="option"
-el.innerText=b
-
-el.onclick=()=>{
-
-selectedBread=b
-
-document.querySelectorAll("#breadOptions .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-
-}
-
-breadDiv.appendChild(el)
-
-})
-
-
-
-const piesDiv=document.getElementById("piesOptions")
-piesDiv.innerHTML=""
-
-piesOptions.forEach(p=>{
-
-const el=document.createElement("div")
-el.className="option"
-el.innerText=p
-
-el.onclick=()=>{
-
-selectedPies=p
-
-document.querySelectorAll("#piesOptions .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-
-}
-
-piesDiv.appendChild(el)
+container.innerHTML += `
+<h2>${set.day}</h2>
+<button onclick="openDay(${i})">Выбрать</button>
+`
 
 })
 
 }
 
+function openDay(index){
 
+const set = sets[index]
 
-function addToCart(){
+container.innerHTML = `
 
-if(!selectedSoup || !selectedMain){
+<h2>${set.day}</h2>
 
-alert("Выберите суп и второе блюдо")
-return
+<h3>ФИКС</h3>
+<ul>
+${set.fixed.map(i=>`<li>${i}</li>`).join("")}
+</ul>
+
+<h3>СУПЫ (1)</h3>
+${set.soups.map((s,i)=>`
+<label>
+<input type="radio" name="soup" value="${s}" ${i===0?"checked":""}>
+${s}
+</label><br>
+`).join("")}
+
+<h3>ВТОРЫЕ (1)</h3>
+${set.mains.map((m,i)=>`
+<label>
+<input type="radio" name="main" value="${m}" ${i===0?"checked":""}>
+${m}
+</label><br>
+`).join("")}
+
+<h3>ХЛЕБ</h3>
+${breadOptions.map(b=>`
+<label>
+<input type="checkbox" name="bread" value="${b}">
+${b}
+</label><br>
+`).join("")}
+
+<h3>ПИРОЖКИ</h3>
+${pieOptions.map(p=>`
+<label>
+<input type="checkbox" name="pies" value="${p}">
+${p}
+</label><br>
+`).join("")}
+
+<textarea id="comment" placeholder="Комментарий"></textarea>
+
+<button onclick="addToCart('${set.day}')">
+Добавить в корзину
+</button>
+
+<button onclick="renderDays()">← Назад</button>
+
+`
 
 }
 
-const comment=document.getElementById("comment").value
+function addToCart(day){
+
+const soup = document.querySelector('input[name="soup"]:checked').value
+const main = document.querySelector('input[name="main"]:checked').value
+
+const breads = [...document.querySelectorAll('input[name="bread"]:checked')].map(i=>i.value)
+const pies = [...document.querySelectorAll('input[name="pies"]:checked')].map(i=>i.value)
+
+const comment = document.getElementById("comment").value
 
 cart.push({
-
-menu:selectedMenu,
-day:selectedDay,
-soup:selectedSoup,
-main:selectedMain,
-bread:selectedBread,
-pies:selectedPies,
-comment:comment
-
+day,
+soup,
+main,
+bread:breads,
+pies:pies,
+comment
 })
+
+alert("Добавлено")
 
 renderCart()
 
 }
 
-
-
 function renderCart(){
 
-const cartDiv=document.getElementById("cart")
-const items=document.getElementById("cartItems")
+const cartDiv = document.getElementById("cart")
 
-cartDiv.classList.remove("hidden")
+cartDiv.innerHTML = `
 
-items.innerHTML=cart.map(i=>`
+<div style="position:fixed;bottom:0;background:white;width:100%;padding:10px">
 
-<div>
+Корзина: ${cart.length}
 
-<b>${i.day}</b><br>
-
-${i.soup}<br>
-${i.main}<br>
-
-${i.bread ? "Хлеб: "+i.bread+"<br>" : ""}
-${i.pies ? "Пирожки: "+i.pies+"<br>" : ""}
+<button onclick="checkout()">Оформить заказ</button>
 
 </div>
 
-`).join("<hr>")
+`
 
 }
-
-
 
 function checkout(){
 
-if(cart.length===0){
-
-alert("Корзина пуста")
-return
-
-}
-
-tg.sendData(JSON.stringify({cart:cart}))
+tg.sendData(JSON.stringify({cart}))
 
 setTimeout(()=>{
-
 tg.close()
-
 },500)
 
 }
+
+renderDays()
