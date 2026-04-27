@@ -232,27 +232,32 @@ async def cash_handler(message: types.Message):
 async def finish_order(message):
 
     user_id = message.from_user.id
-    order = payment_state[user_id]
+    order = payment_state.get(user_id)
+
+    if not order:
+        await message.answer("Ошибка заказа, попробуйте снова.")
+        return
 
     username = message.from_user.username
     name = message.from_user.full_name
 
     user = f"@{username}" if username else f"id:{user_id}"
 
-    # 🔥 ИСПРАВЛЕНО ЗДЕСЬ
     cart_lines = []
 
     for item in order["cart"]:
 
+        bread = item.get("bread", [])
+        pies = item.get("pies", [])
+
         text = f"{item['day']}\n"
         text += f"Суп: {item['soup']}\n"
         text += f"Второе: {item['main']}\n"
+        text += "Хлеб: " + (", ".join(bread) if bread else "—") + "\n"
+        text += "Пирожки: " + (", ".join(pies) if pies else "—") + "\n"
 
-        if item.get("bread"):
-            text += "Хлеб: " + ", ".join(item["bread"]) + "\n"
-
-        if item.get("pies"):
-            text += "Пирожки: " + ", ".join(item["pies"]) + "\n"
+        if item.get("comment"):
+            text += f"Комментарий: {item['comment']}\n"
 
         cart_lines.append(text)
 
@@ -264,7 +269,6 @@ async def finish_order(message):
         f"📅 День доставки: {order['day']}\n"
         f"👤 Клиент: {name}\n"
         f"{user}\n\n"
-        f"💬 Комментарий: {order['comment']}\n\n"
         f"💳 Оплата: {order['payment']}\n"
         f"💰 Детали: {order['payment_detail']}"
     )
@@ -277,10 +281,30 @@ async def finish_order(message):
         longitude=order["lon"]
     )
 
-    await message.answer("✅ Заказ оформлен.")
+    # 🔥 возврат в стартовое меню
+    reply_keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                types.KeyboardButton(
+                    text="🍽 Открыть меню",
+                    web_app=types.WebAppInfo(
+                        url="https://alba-x-ai.github.io/food-garden-menu/"
+                    )
+                ),
+                types.KeyboardButton(text="📍 Контакты")
+            ]
+        ],
+        resize_keyboard=True
+    )
+
+    await message.answer(
+        "✅ Заказ оформлен.\n\nВы можете сделать новый заказ 👇",
+        reply_markup=reply_keyboard
+    )
 
     del payment_state[user_id]
-    del pending_orders[user_id]
+    if user_id in pending_orders:
+        del pending_orders[user_id]
 
 
 # ---------- API ----------
