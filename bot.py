@@ -38,27 +38,21 @@ conn.commit()
 
 
 def get_spots():
-
     data = {}
-
     for row in cursor.execute("SELECT day,places FROM spots"):
         data[row[0]] = row[1]
-
     return data
 
 
 def decrease_spot(day):
-
     cursor.execute(
         "UPDATE spots SET places = places - 1 WHERE day=? AND places>0",
         (day,)
     )
-
     conn.commit()
 
 
 def reset_spots():
-
     cursor.execute("UPDATE spots SET places=?", (LIMIT,))
     conn.commit()
 
@@ -245,26 +239,28 @@ async def finish_order(message):
 
     user = f"@{username}" if username else f"id:{user_id}"
 
+    # 🔥 ИСПРАВЛЕНО ЗДЕСЬ
     cart_lines = []
-    total = 0
 
     for item in order["cart"]:
 
-        qty = item["qty"]
-        price = item["price"]
-        day = item["day"]
+        text = f"{item['day']}\n"
+        text += f"Суп: {item['soup']}\n"
+        text += f"Второе: {item['main']}\n"
 
-        subtotal = qty * price
-        total += subtotal
+        if item.get("bread"):
+            text += "Хлеб: " + ", ".join(item["bread"]) + "\n"
 
-        cart_lines.append(f"{qty} × {day} — {subtotal:,} ₫")
+        if item.get("pies"):
+            text += "Пирожки: " + ", ".join(item["pies"]) + "\n"
 
-    cart_text = "\n".join(cart_lines)
+        cart_lines.append(text)
+
+    cart_text = "\n---\n".join(cart_lines)
 
     admin_text = (
         "🆕 Новый заказ\n\n"
         f"{cart_text}\n\n"
-        f"💰 Итого: {total:,} ₫\n\n"
         f"📅 День доставки: {order['day']}\n"
         f"👤 Клиент: {name}\n"
         f"{user}\n\n"
