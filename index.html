@@ -10,7 +10,6 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-
 body{
 margin:0;
 padding:20px;
@@ -19,7 +18,6 @@ background: radial-gradient(circle at top, #4b2e2e, #2b1a1a);
 color:#f5f5f5;
 }
 
-/* карточки */
 .card{
 background: rgba(255,255,255,0.05);
 backdrop-filter: blur(12px);
@@ -29,7 +27,6 @@ margin:10px 0;
 box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* стеклянные кнопки */
 .glass-btn{
 background: rgba(46, 204, 113, 0.2);
 backdrop-filter: blur(10px);
@@ -43,18 +40,12 @@ font-weight:500;
 transition:0.2s;
 }
 
-.glass-btn:active{
-transform:scale(0.97);
-background: rgba(46,204,113,0.35);
-}
-
 .glass-btn.active{
 background: rgba(46,204,113,0.6);
 color:white;
 box-shadow: 0 0 10px rgba(46,204,113,0.5);
 }
 
-/* корзина */
 .cart{
 position:fixed;
 bottom:0;
@@ -63,9 +54,7 @@ right:0;
 background: rgba(0,0,0,0.6);
 backdrop-filter: blur(12px);
 padding:15px;
-border-top:1px solid rgba(255,255,255,0.1);
 }
-
 </style>
 
 </head>
@@ -86,83 +75,191 @@ const cartDiv = document.getElementById("cart")
 let cart = []
 let selection = {}
 let currentMenu = null
+let currentType = null
 
-// --- МЕНЮ ---
+// --- ПОЛНЫЕ МЕНЮ ---
 const menus = {
+
 russian: [
 
 {
 day:"Понедельник",
-price:120000,
-soups:["Борщ","Гороховый"],
-mains:["Говядина","Курица"]
+fixed:[
+"Хлеб пшеничный с зирой",
+"Салат «Витаминный»",
+"Каша гречневая с грибами и луком",
+"Солёные огурцы"
+],
+soups:[
+"Борщ",
+"Гороховый суп"
+],
+mains:[
+"Говядина тушёная с картофельным пюре",
+"Куриная печень с рисом"
+]
 },
 
 {
 day:"Среда",
-price:130000,
-soups:["Солянка","Щи"],
-mains:["Котлета","Курица"]
+fixed:[
+"Хлеб пшеничный с орегано",
+"Салат «Летний»",
+"Перловая каша с грибами и луком",
+"Квашеная капуста"
+],
+soups:[
+"Солянка",
+"Щи"
+],
+mains:[
+"Котлета свиная/говяжья с гречкой",
+"Котлета куриная с овощной смесью"
+]
 },
 
 {
 day:"Пятница",
-price:140000,
-soups:["Борщ","Щи"],
-mains:["Говядина","Курица"]
-}
-
+fixed:[
+"Хлеб с орехами и семенами",
+"Свекольный салат с орехом",
+"Гороховая каша с грибами",
+"Маринованные помидоры"
+],
+soups:[
+"Куриный суп",
+"Рассольник"
+],
+mains:[
+"Курица запечённая с лапшой",
+"Свиные рёбра с тушёной капустой"
 ]
 }
 
-// --- ДОПЫ ---
-const breadPrice = 10000
-const piePrice = 15000
+],
 
-const breadOptions = ["Органо","Орехи","Зира"]
-const pieOptions = ["Капуста","Картошка","Яйцо"]
+international: [
+
+{
+day:"Понедельник",
+fixed:[
+"Греческий салат",
+"Бутерброд с сыром",
+"Солёные огурцы"
+],
+soups:[
+"Шурпа",
+"Крем-суп грибной"
+],
+mains:[
+"Гуляш",
+"Курица терияки"
+]
+},
+
+{
+day:"Среда",
+fixed:[
+"Свекольный салат",
+"Бутерброд с сыром",
+"Квашеная капуста"
+],
+soups:[
+"Харчо",
+"Овощной суп-пюре"
+],
+mains:[
+"Курица Кун Пао",
+"Ломо сальтадо"
+]
+},
+
+{
+day:"Пятница",
+fixed:[
+"Салат с фунчозой",
+"Бутерброд с сыром",
+"Маринованные помидоры"
+],
+soups:[
+"Lohikeitto",
+"Яично-помидорный суп"
+],
+mains:[
+"Гуляш",
+"Индийское карри"
+]
+}
+
+]
+
+}
+
+// --- ДОПЫ ---
+const breadOptions = [
+"Пшеничный с орегано",
+"Пшеничный с орехами",
+"Пшеничный с зирой"
+]
+
+const pieOptions = [
+"С капустой",
+"С картошкой",
+"С яйцом"
+]
 
 // --- UI ---
 function chip(text, active, onclick){
-return `
-<div class="glass-btn ${active ? 'active' : ''}" onclick="${onclick}">
-${text}
-</div>
-`
+return `<div class="glass-btn ${active?'active':''}" onclick="${onclick}">${text}</div>`
 }
 
-// --- ЭКРАН 1 ---
-function renderMenu(){
+// --- ВЫБОР МЕНЮ ---
+function renderTypes(){
 
-currentMenu = menus.russian
+menuDiv.innerHTML = `
+<h2>Food Garden</h2>
 
-menuDiv.innerHTML = `<h2>Food Garden</h2>`
+<div class="glass-btn" onclick="openMenu('russian')">Русское меню</div>
+<div class="glass-btn" onclick="openMenu('international')">Интернациональное меню</div>
+`
+
+}
+
+// --- ДНИ ---
+function openMenu(type){
+
+currentType = type
+currentMenu = menus[type]
+
+menuDiv.innerHTML = `<div class="glass-btn" onclick="renderTypes()">← Назад</div>`
 
 currentMenu.forEach((set,i)=>{
 menuDiv.innerHTML += `
 <div class="card">
 <h3>${set.day}</h3>
-<div>${set.price.toLocaleString()}₫</div>
-<div class="glass-btn" onclick="openDay(${i})">Выбрать</div>
+<div class="glass-btn" onclick="openDay(${i})">Открыть</div>
 </div>
 `
 })
 
 }
 
-// --- ЭКРАН 2 ---
+// --- ДЕНЬ ---
 function openDay(index){
 
 const set = currentMenu[index]
+
 if(!selection[set.day]) selection[set.day]={bread:[],pies:[]}
 
 const sel = selection[set.day]
 
 menuDiv.innerHTML = `
-<div class="glass-btn" onclick="renderMenu()">← Назад</div>
+<div class="glass-btn" onclick="openMenu('${currentType}')">← Назад</div>
 
 <h2>${set.day}</h2>
-<div><b>${set.price.toLocaleString()}₫</b></div>
+
+<h3>Фиксированное меню</h3>
+<ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
 
 <h3>Суп</h3>
 ${set.soups.map(s=>chip(s, sel.soup===s, `selectSoup('${set.day}','${s}')`)).join("")}
@@ -170,54 +267,36 @@ ${set.soups.map(s=>chip(s, sel.soup===s, `selectSoup('${set.day}','${s}')`)).joi
 <h3>Второе</h3>
 ${set.mains.map(m=>chip(m, sel.main===m, `selectMain('${set.day}','${m}')`)).join("")}
 
-<h3>Хлеб (+${breadPrice})</h3>
+<h3>Дополнительно хлеб</h3>
 ${breadOptions.map(b=>chip(b, sel.bread.includes(b), `toggleBread('${set.day}','${b}')`)).join("")}
 
-<h3>Пирожки (+${piePrice})</h3>
+<h3>Пирожки</h3>
 ${pieOptions.map(p=>chip(p, sel.pies.includes(p), `togglePies('${set.day}','${p}')`)).join("")}
 
-<div class="glass-btn" onclick="addToCart(${index})">
-Добавить (${calculatePrice(set, sel).toLocaleString()}₫)
-</div>
+<div class="glass-btn" onclick="addToCart(${index})">Добавить в корзину</div>
 `
+
 }
 
 // --- ЛОГИКА ---
-function selectSoup(day,val){
-selection[day].soup = val
-rerender(day)
-}
-
-function selectMain(day,val){
-selection[day].main = val
-rerender(day)
-}
+function selectSoup(day,val){ selection[day].soup=val; rerender(day) }
+function selectMain(day,val){ selection[day].main=val; rerender(day) }
 
 function toggleBread(day,val){
 const arr = selection[day].bread
-selection[day].bread = arr.includes(val) ? arr.filter(i=>i!==val) : [...arr,val]
+selection[day].bread = arr.includes(val)?arr.filter(i=>i!==val):[...arr,val]
 rerender(day)
 }
 
 function togglePies(day,val){
 const arr = selection[day].pies
-selection[day].pies = arr.includes(val) ? arr.filter(i=>i!==val) : [...arr,val]
+selection[day].pies = arr.includes(val)?arr.filter(i=>i!==val):[...arr,val]
 rerender(day)
 }
 
 function rerender(day){
 const i = currentMenu.findIndex(x=>x.day===day)
 openDay(i)
-}
-
-// --- ЦЕНА ---
-function calculatePrice(set, sel){
-
-let total = set.price
-total += (sel.bread?.length || 0) * breadPrice
-total += (sel.pies?.length || 0) * piePrice
-
-return total
 }
 
 // --- КОРЗИНА ---
@@ -231,31 +310,18 @@ alert("Выберите суп и второе")
 return
 }
 
-const price = calculatePrice(set, sel)
-
-cart.push({
-day:set.day,
-...sel,
-price
-})
-
+cart.push({day:set.day,...sel})
 renderCart()
 alert("Добавлено")
 }
 
 function renderCart(){
 
-if(cart.length === 0){
-cartDiv.innerHTML=""
-return
-}
-
-const total = cart.reduce((s,i)=>s+i.price,0)
+if(cart.length===0){ cartDiv.innerHTML=""; return }
 
 cartDiv.innerHTML = `
 <div class="cart">
-<b>Корзина (${cart.length})</b><br>
-Итого: ${total.toLocaleString()}₫
+<b>Корзина (${cart.length})</b>
 <div class="glass-btn" onclick="checkout()">Оформить заказ</div>
 </div>
 `
@@ -270,7 +336,7 @@ tg.close()
 }
 
 // --- СТАРТ ---
-renderMenu()
+renderTypes()
 
 </script>
 
