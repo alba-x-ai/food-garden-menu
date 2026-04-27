@@ -10,14 +10,14 @@
 
 <style>
 
-/* --- ФОН (ТЁМНЫЙ ИЗУМРУД) --- */
+/* --- ФОН (МОЛОЧНЫЙ / КРЕМОВЫЙ) --- */
 body{
 margin:0;
 padding:20px;
 font-family: system-ui, -apple-system, sans-serif;
 
-background: linear-gradient(180deg, #0f1f1a 0%, #08110e 100%);
-color:#e8fff4;
+background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
+color:#1a1a1a;
 }
 
 /* --- ЗАГОЛОВКИ --- */
@@ -28,27 +28,27 @@ font-weight:600;
 
 /* --- КАРТОЧКИ --- */
 .card{
-background: rgba(255,255,255,0.05);
-backdrop-filter: blur(18px);
+background: rgba(255,255,255,0.7);
+backdrop-filter: blur(12px);
 border-radius:18px;
 padding:16px;
 margin:14px 0;
 
 box-shadow:
-0 10px 40px rgba(0,0,0,0.7),
-inset 0 0 0 1px rgba(255,255,255,0.06);
+0 6px 20px rgba(0,0,0,0.08),
+inset 0 0 0 1px rgba(255,255,255,0.6);
 }
 
 /* --- КНОПКИ --- */
 .glass-btn{
-background: rgba(46,204,113,0.18);
-backdrop-filter: blur(14px);
+background: rgba(46,204,113,0.15);
+backdrop-filter: blur(10px);
 border:1px solid rgba(46,204,113,0.35);
 border-radius:16px;
 padding:14px;
 margin-top:10px;
 text-align:center;
-color:#d9ffe8;
+color:#1a3d2f;
 font-weight:500;
 cursor:pointer;
 transition:0.2s;
@@ -58,12 +58,12 @@ transition:0.2s;
 transform:scale(0.96);
 }
 
+/* активное состояние */
 .glass-btn.active{
-background: rgba(46,204,113,0.7);
+background: rgba(46,204,113,0.6);
 color:white;
 box-shadow:
-0 0 15px rgba(46,204,113,0.7),
-0 0 35px rgba(46,204,113,0.3);
+0 0 10px rgba(46,204,113,0.4);
 }
 
 /* --- СПИСКИ --- */
@@ -85,7 +85,7 @@ padding-bottom:100px;
 
 <div id="menu"></div>
 
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 
 </body>
 </html>
