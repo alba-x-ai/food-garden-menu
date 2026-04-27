@@ -7,9 +7,10 @@ const cartDiv = document.getElementById("cart")
 let cart = []
 let currentMenu = null
 let currentType = null
+
+// 🔥 ГЛАВНОЕ
 let currentSelection = {}
 
-// --- ДОПЫ ---
 const breadOptions = [
 "Пшеничный с орегано",
 "Пшеничный с грецкими орехами и семенами чиа и льна",
@@ -22,9 +23,7 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-// --- МЕНЮ ---
 const menus = {
-
 russian: [
 {
 day:"Понедельник",
@@ -75,42 +74,33 @@ soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яично-п
 mains:["Гуляш + Курица терияки","Кёнигсбергские клопсы + Индийское карри"]
 }
 ]
-
 }
 
-// --- ЭКРАН 1 ---
+// --- ВЫБОР МЕНЮ ---
 function renderMenuTypes(){
 
 menuDiv.innerHTML = `
-<div>
 <h2>Выберите меню</h2>
-
 <button onclick="openMenu('russian')">Русское меню</button>
 <button onclick="openMenu('international')">Интернациональное меню</button>
-
-</div>
 `
 
 }
 
-// --- ЭКРАН 2 ---
+// --- ДНИ ---
 function openMenu(type){
 
 currentType = type
 currentMenu = menus[type]
 
 menuDiv.innerHTML = `
-
-<div style="margin-bottom:15px">
 <button onclick="renderMenuTypes()">← Назад</button>
-</div>
-
 `
 
 currentMenu.forEach((set,i)=>{
 
 menuDiv.innerHTML += `
-<div style="background:white;padding:15px;margin-bottom:10px;border-radius:10px">
+<div style="background:white;padding:10px;margin:10px 0;border-radius:10px">
 <h2>${set.day}</h2>
 <button onclick="openDay(${i})">Выбрать</button>
 </div>
@@ -120,17 +110,16 @@ menuDiv.innerHTML += `
 
 }
 
-// --- ЭКРАН 3 ---
+// --- ДЕНЬ ---
 function openDay(index){
 
 const set = currentMenu[index]
+
+// 🔥 берём сохранённое
 const saved = currentSelection[set.day] || {}
 
 menuDiv.innerHTML = `
-
-<div style="margin-bottom:15px">
-<button onclick="saveAndBack('${set.day}')">← Назад</button>
-</div>
+<button onclick="openMenu('${currentType}')">← Назад</button>
 
 <h2>${set.day}</h2>
 
@@ -138,19 +127,21 @@ menuDiv.innerHTML = `
 <ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
 
 <h3>СУПЫ</h3>
-${set.soups.map((s,i)=>`
+${set.soups.map(s=>`
 <label>
-<input type="radio" name="soup" value="${s}" 
-${saved.soup === s ? "checked" : (!saved.soup && i===0 ? "checked":"")}>
+<input type="radio" name="soup" value="${s}"
+${saved.soup === s ? "checked":""}
+onchange="updateSelection('${set.day}')">
 ${s}
 </label><br>
 `).join("")}
 
 <h3>ВТОРЫЕ</h3>
-${set.mains.map((m,i)=>`
+${set.mains.map(m=>`
 <label>
 <input type="radio" name="main" value="${m}"
-${saved.main === m ? "checked" : (!saved.main && i===0 ? "checked":"")}>
+${saved.main === m ? "checked":""}
+onchange="updateSelection('${set.day}')">
 ${m}
 </label><br>
 `).join("")}
@@ -159,7 +150,8 @@ ${m}
 ${breadOptions.map(b=>`
 <label>
 <input type="checkbox" name="bread" value="${b}"
-${saved.bread?.includes(b) ? "checked":""}>
+${saved.bread?.includes(b) ? "checked":""}
+onchange="updateSelection('${set.day}')">
 ${b}
 </label><br>
 `).join("")}
@@ -168,62 +160,58 @@ ${b}
 ${pieOptions.map(p=>`
 <label>
 <input type="checkbox" name="pies" value="${p}"
-${saved.pies?.includes(p) ? "checked":""}>
+${saved.pies?.includes(p) ? "checked":""}
+onchange="updateSelection('${set.day}')">
 ${p}
 </label><br>
 `).join("")}
 
-<textarea id="comment">${saved.comment || ""}</textarea>
+<textarea id="comment" oninput="updateSelection('${set.day}')">${saved.comment || ""}</textarea>
 
 <button onclick="addToCart('${set.day}')">Добавить в корзину</button>
-
 `
 
 }
 
-// --- СОХРАНИТЬ ---
-function saveSelection(day){
+// --- СОХРАНЕНИЕ В РЕАЛЬНОМ ВРЕМЕНИ ---
+function updateSelection(day){
 
 const soup = document.querySelector('input[name="soup"]:checked')?.value
 const main = document.querySelector('input[name="main"]:checked')?.value
 
-const breads = [...document.querySelectorAll('input[name="bread"]:checked')].map(i=>i.value)
-const pies = [...document.querySelectorAll('input[name="pies"]:checked')].map(i=>i.value)
+const breads = Array.from(document.querySelectorAll('input[name="bread"]:checked')).map(i=>i.value)
+const pies = Array.from(document.querySelectorAll('input[name="pies"]:checked')).map(i=>i.value)
 
-const comment = document.getElementById("comment").value
+const comment = document.getElementById("comment")?.value || ""
 
-currentSelection[day] = {soup,main,bread:breads,pies:pies,comment}
-
+currentSelection[day] = {
+soup,
+main,
+bread: breads,
+pies: pies,
+comment
 }
 
-function saveAndBack(day){
-saveSelection(day)
-openMenu(currentType)
 }
 
 // --- ДОБАВИТЬ ---
 function addToCart(day){
 
-saveSelection(day)
-
 const sel = currentSelection[day]
 
-if(!sel.soup || !sel.main){
+if(!sel || !sel.soup || !sel.main){
 alert("Выберите суп и второе")
 return
 }
 
-cart.push({day,...sel})
+cart.push({
+day,
+...sel
+})
 
 renderCart()
-alert("Добавлено в корзину")
+alert("Добавлено")
 
-}
-
-// --- УДАЛИТЬ ---
-function removeItem(index){
-cart.splice(index,1)
-renderCart()
 }
 
 // --- КОРЗИНА ---
@@ -239,16 +227,6 @@ cartDiv.innerHTML = `
 
 <b>Корзина (${cart.length})</b>
 
-${cart.map((i,index)=>`
-<div>
-${i.day}<br>
-${i.soup}<br>
-${i.main}<br>
-<button onclick="removeItem(${index})">Удалить</button>
-</div>
-<hr>
-`).join("")}
-
 <button onclick="checkout()">Оформить заказ</button>
 
 </div>
@@ -259,16 +237,9 @@ ${i.main}<br>
 // --- ОФОРМЛЕНИЕ ---
 function checkout(){
 
-if(cart.length === 0){
-alert("Корзина пуста")
-return
-}
-
 tg.sendData(JSON.stringify({cart}))
 
-setTimeout(()=>{
-tg.close()
-},500)
+setTimeout(()=>tg.close(),500)
 
 }
 
