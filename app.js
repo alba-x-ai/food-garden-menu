@@ -2,7 +2,13 @@ const tg = window.Telegram.WebApp
 tg.ready()
 
 let cart = []
+let currentMenu = null
+let currentType = null
 
+const menuDiv = document.getElementById("menu")
+const cartDiv = document.getElementById("cart")
+
+// --- ДОПЫ ---
 const breadOptions = [
 "Пшеничный с орегано",
 "Пшеничный с грецкими орехами и семенами",
@@ -15,8 +21,61 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-const sets = [
+// --- ДВА МЕНЮ ---
+const menus = {
 
+russian: [
+{
+day:"Понедельник",
+fixed:[
+"Салат «Летний»",
+"Гречка с грибами и луком",
+"Солёные огурцы"
+],
+soups:[
+"Борщ + Гороховый суп",
+"Куриный суп с сухариками + Рассольник"
+],
+mains:[
+"Говядина тушёная с картофельным пюре + Куриная печень с рисом",
+"Котлета из говядины с гречкой + Котлета куриная с запечёнными овощами"
+]
+},
+{
+day:"Среда",
+fixed:[
+"Свекольный салат с орехом, чесноком, изюмом",
+"Перловая каша с грибами и луком",
+"Квашеная капуста"
+],
+soups:[
+"Куриный суп с сухариками + Рассольник",
+"Солянка + Щи"
+],
+mains:[
+"Котлета из говядины с гречкой + Котлета куриная с запечёнными овощами",
+"Курица запечённая с лапшой + Свиные рёбра с тушёной капустой"
+]
+},
+{
+day:"Пятница",
+fixed:[
+"Салат «Витаминный»",
+"Гороховая каша с грибами и луком",
+"Маринованные помидоры"
+],
+soups:[
+"Борщ + Гороховый суп",
+"Солянка + Щи"
+],
+mains:[
+"Говядина тушёная с картофельным пюре + Куриная печень с рисом",
+"Курица запечённая с лапшой + Свиные рёбра с тушёной капустой"
+]
+}
+],
+
+international: [
 {
 day:"Понедельник",
 fixed:[
@@ -33,7 +92,6 @@ mains:[
 "Курица Кун Пао + Ломо сальтадо"
 ]
 },
-
 {
 day:"Среда",
 fixed:[
@@ -50,7 +108,6 @@ mains:[
 "Кёнигсбергские клопсы + Индийское карри"
 ]
 },
-
 {
 day:"Пятница",
 fixed:[
@@ -67,21 +124,37 @@ mains:[
 "Кёнигсбергские клопсы + Индийское карри"
 ]
 }
-
 ]
 
-const container = document.getElementById("menu")
-const cartDiv = document.getElementById("cart")
+}
 
-// --- СПИСОК ДНЕЙ ---
-function renderDays(){
+// --- ЭКРАН 1: ВЫБОР МЕНЮ ---
+function renderMenuTypes(){
 
-container.innerHTML=""
+menuDiv.innerHTML = `
+<div class="card">
+<h2>Выберите меню</h2>
 
-sets.forEach((set,i)=>{
+<button onclick="openMenu('russian')">Русское меню</button>
+<button onclick="openMenu('international')">Интернациональное меню</button>
 
-container.innerHTML += `
-<div style="background:white;padding:15px;margin-bottom:10px;border-radius:10px">
+</div>
+`
+
+}
+
+// --- ЭКРАН 2: ДНИ ---
+function openMenu(type){
+
+currentType = type
+currentMenu = menus[type]
+
+menuDiv.innerHTML = ""
+
+currentMenu.forEach((set,i)=>{
+
+menuDiv.innerHTML += `
+<div class="card">
 <h2>${set.day}</h2>
 <button onclick="openDay(${i})">Выбрать</button>
 </div>
@@ -89,21 +162,24 @@ container.innerHTML += `
 
 })
 
+// 🔥 КНОПКА НАЗАД (ВОТ ЧТО ТЫ ПРОСИЛА)
+menuDiv.innerHTML += `
+<button onclick="renderMenuTypes()">← Назад</button>
+`
+
 }
 
-// --- ОТКРЫТЬ ДЕНЬ ---
+// --- ЭКРАН 3: ДЕНЬ ---
 function openDay(index){
 
-const set = sets[index]
+const set = currentMenu[index]
 
-container.innerHTML = `
+menuDiv.innerHTML = `
 
 <h2>${set.day}</h2>
 
 <h3>ФИКС</h3>
-<ul>
-${set.fixed.map(i=>`<li>${i}</li>`).join("")}
-</ul>
+<ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
 
 <h3>СУПЫ (1)</h3>
 ${set.soups.map((s,i)=>`
@@ -137,19 +213,17 @@ ${p}
 </label><br>
 `).join("")}
 
-<textarea id="comment" placeholder="Комментарий" style="width:100%;margin-top:10px"></textarea>
+<textarea id="comment" placeholder="Комментарий"></textarea>
 
-<button onclick="addToCart('${set.day}')">
-Добавить в корзину
-</button>
+<button onclick="addToCart('${set.day}')">Добавить в корзину</button>
 
-<button onclick="renderDays()">← Назад</button>
+<button onclick="openMenu('${currentType}')">← Назад</button>
 
 `
 
 }
 
-// --- ДОБАВИТЬ В КОРЗИНУ ---
+// --- ДОБАВИТЬ ---
 function addToCart(day){
 
 const soupEl = document.querySelector('input[name="soup"]:checked')
@@ -178,14 +252,8 @@ comment
 })
 
 renderCart()
-alert("Добавлено в корзину")
+alert("Добавлено")
 
-}
-
-// --- УДАЛИТЬ ---
-function removeItem(index){
-cart.splice(index,1)
-renderCart()
 }
 
 // --- КОРЗИНА ---
@@ -197,38 +265,22 @@ return
 }
 
 cartDiv.innerHTML = `
-
-<div style="position:fixed;bottom:0;background:white;width:100%;padding:10px;max-height:50%;overflow:auto">
+<div class="cart">
 
 <b>Корзина (${cart.length})</b>
 
-<div style="font-size:12px;margin-top:5px">
-
-${cart.map((i,index)=>`
-
-<div style="margin-bottom:10px">
-
-<b>${i.day}</b><br>
-Суп: ${i.soup}<br>
-Второе: ${i.main}<br>
-
-${i.bread.length ? "Хлеб: "+i.bread.join(", ")+"<br>" : ""}
-${i.pies.length ? "Пирожки: "+i.pies.join(", ")+"<br>" : ""}
-${i.comment ? "Комментарий: "+i.comment+"<br>" : ""}
-
-<button onclick="removeItem(${index})">Удалить</button>
-
+${cart.map(i=>`
+<div>
+${i.day}<br>
+${i.soup}<br>
+${i.main}
 </div>
 <hr>
-
 `).join("")}
-
-</div>
 
 <button onclick="checkout()">Оформить заказ</button>
 
 </div>
-
 `
 
 }
@@ -250,4 +302,4 @@ tg.close()
 }
 
 // --- СТАРТ ---
-renderDays()
+renderMenuTypes()
