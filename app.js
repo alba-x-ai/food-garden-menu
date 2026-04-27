@@ -71,7 +71,9 @@ mains:[
 ]
 
 const container = document.getElementById("menu")
+const cartDiv = document.getElementById("cart")
 
+// --- СПИСОК ДНЕЙ ---
 function renderDays(){
 
 container.innerHTML=""
@@ -79,14 +81,17 @@ container.innerHTML=""
 sets.forEach((set,i)=>{
 
 container.innerHTML += `
+<div style="background:white;padding:15px;margin-bottom:10px;border-radius:10px">
 <h2>${set.day}</h2>
 <button onclick="openDay(${i})">Выбрать</button>
+</div>
 `
 
 })
 
 }
 
+// --- ОТКРЫТЬ ДЕНЬ ---
 function openDay(index){
 
 const set = sets[index]
@@ -132,7 +137,7 @@ ${p}
 </label><br>
 `).join("")}
 
-<textarea id="comment" placeholder="Комментарий"></textarea>
+<textarea id="comment" placeholder="Комментарий" style="width:100%;margin-top:10px"></textarea>
 
 <button onclick="addToCart('${set.day}')">
 Добавить в корзину
@@ -144,10 +149,19 @@ ${p}
 
 }
 
+// --- ДОБАВИТЬ В КОРЗИНУ ---
 function addToCart(day){
 
-const soup = document.querySelector('input[name="soup"]:checked').value
-const main = document.querySelector('input[name="main"]:checked').value
+const soupEl = document.querySelector('input[name="soup"]:checked')
+const mainEl = document.querySelector('input[name="main"]:checked')
+
+if(!soupEl || !mainEl){
+alert("Выберите суп и второе")
+return
+}
+
+const soup = soupEl.value
+const main = mainEl.value
 
 const breads = [...document.querySelectorAll('input[name="bread"]:checked')].map(i=>i.value)
 const pies = [...document.querySelectorAll('input[name="pies"]:checked')].map(i=>i.value)
@@ -163,21 +177,53 @@ pies:pies,
 comment
 })
 
-alert("Добавлено")
-
 renderCart()
+alert("Добавлено в корзину")
 
 }
 
+// --- УДАЛИТЬ ---
+function removeItem(index){
+cart.splice(index,1)
+renderCart()
+}
+
+// --- КОРЗИНА ---
 function renderCart(){
 
-const cartDiv = document.getElementById("cart")
+if(cart.length === 0){
+cartDiv.innerHTML = ""
+return
+}
 
 cartDiv.innerHTML = `
 
-<div style="position:fixed;bottom:0;background:white;width:100%;padding:10px">
+<div style="position:fixed;bottom:0;background:white;width:100%;padding:10px;max-height:50%;overflow:auto">
 
-Корзина: ${cart.length}
+<b>Корзина (${cart.length})</b>
+
+<div style="font-size:12px;margin-top:5px">
+
+${cart.map((i,index)=>`
+
+<div style="margin-bottom:10px">
+
+<b>${i.day}</b><br>
+Суп: ${i.soup}<br>
+Второе: ${i.main}<br>
+
+${i.bread.length ? "Хлеб: "+i.bread.join(", ")+"<br>" : ""}
+${i.pies.length ? "Пирожки: "+i.pies.join(", ")+"<br>" : ""}
+${i.comment ? "Комментарий: "+i.comment+"<br>" : ""}
+
+<button onclick="removeItem(${index})">Удалить</button>
+
+</div>
+<hr>
+
+`).join("")}
+
+</div>
 
 <button onclick="checkout()">Оформить заказ</button>
 
@@ -187,7 +233,13 @@ cartDiv.innerHTML = `
 
 }
 
+// --- ОФОРМЛЕНИЕ ---
 function checkout(){
+
+if(cart.length === 0){
+alert("Корзина пуста")
+return
+}
 
 tg.sendData(JSON.stringify({cart}))
 
@@ -197,4 +249,5 @@ tg.close()
 
 }
 
+// --- СТАРТ ---
 renderDays()
