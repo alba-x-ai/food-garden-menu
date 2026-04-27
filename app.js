@@ -8,7 +8,7 @@ let selection = {}
 let currentMenu = null
 let currentType = null
 
-// --- МЕНЮ 1:1 ---
+// --- МЕНЮ ---
 const menus = {
 
 international: [
