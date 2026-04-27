@@ -10,40 +10,62 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 body{
-font-family:sans-serif;
 margin:0;
 padding:20px;
-background:#f5f5f5;
+font-family:sans-serif;
+background: radial-gradient(circle at top, #4b2e2e, #2b1a1a);
+color:#f5f5f5;
 }
 
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-background:#2ecc71;
-color:white;
-font-size:16px;
-}
-
+/* карточки */
 .card{
-background:white;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(12px);
+border-radius:16px;
 padding:15px;
-border-radius:10px;
-margin-bottom:10px;
+margin:10px 0;
+box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
+/* стеклянные кнопки */
+.glass-btn{
+background: rgba(46, 204, 113, 0.2);
+backdrop-filter: blur(10px);
+border:1px solid rgba(46,204,113,0.4);
+border-radius:14px;
+padding:12px;
+margin-top:10px;
+text-align:center;
+color:#d4ffd9;
+font-weight:500;
+transition:0.2s;
+}
+
+.glass-btn:active{
+transform:scale(0.97);
+background: rgba(46,204,113,0.35);
+}
+
+.glass-btn.active{
+background: rgba(46,204,113,0.6);
+color:white;
+box-shadow: 0 0 10px rgba(46,204,113,0.5);
+}
+
+/* корзина */
 .cart{
 position:fixed;
 bottom:0;
 left:0;
 right:0;
-background:white;
-padding:10px;
-border-top:1px solid #ddd;
+background: rgba(0,0,0,0.6);
+backdrop-filter: blur(12px);
+padding:15px;
+border-top:1px solid rgba(255,255,255,0.1);
 }
+
 </style>
 
 </head>
@@ -62,203 +84,193 @@ const menuDiv = document.getElementById("menu")
 const cartDiv = document.getElementById("cart")
 
 let cart = []
+let selection = {}
 let currentMenu = null
-let currentType = null
-let currentSelection = {}
 
-const breadOptions = [
-"Пшеничный с орегано",
-"Пшеничный с грецкими орехами и семенами чиа и льна",
-"Пшеничный с зирой"
-]
-
-const pieOptions = [
-"С капустой",
-"С картошкой",
-"С яйцом, луком и рисом"
-]
-
-// 🔥 ДВА ПОЛНЫХ МЕНЮ
+// --- МЕНЮ ---
 const menus = {
-
 russian: [
 
 {
 day:"Понедельник",
-fixed:["Салат «Летний»","Гречка с грибами и луком","Солёные огурцы"],
-soups:["Борщ + Гороховый суп","Куриный суп с сухариками + Рассольник"],
-mains:[
-"Говядина тушёная с картофельным пюре + Куриная печень с рисом",
-"Котлета из говядины с гречкой + Котлета куриная с запечёнными овощами"
-]
+price:120000,
+soups:["Борщ","Гороховый"],
+mains:["Говядина","Курица"]
 },
 
 {
 day:"Среда",
-fixed:["Свекольный салат с орехом, чесноком, изюмом","Перловая каша с грибами и луком","Квашеная капуста"],
-soups:["Куриный суп с сухариками + Рассольник","Солянка + Щи"],
-mains:[
-"Котлета из говядины с гречкой + Котлета куриная с запечёнными овощами",
-"Курица запечённая с лапшой + Свиные рёбра с тушёной капустой"
-]
+price:130000,
+soups:["Солянка","Щи"],
+mains:["Котлета","Курица"]
 },
 
 {
 day:"Пятница",
-fixed:["Салат «Витаминный»","Гороховая каша с грибами и луком","Маринованные помидоры"],
-soups:["Борщ + Гороховый суп","Солянка + Щи"],
-mains:[
-"Говядина тушёная с картофельным пюре + Куриная печень с рисом",
-"Курица запечённая с лапшой + Свиные рёбра с тушёной капустой"
-]
-}
-
-],
-
-international: [
-
-{
-day:"Понедельник",
-fixed:["Греческий салат","Бутерброд с сыром","Солёные огурцы"],
-soups:["Шурпа + Крем-суп грибной","Харчо + Овощной суп-пюре"],
-mains:["Гуляш + Курица терияки","Курица Кун Пао + Ломо сальтадо"]
-},
-
-{
-day:"Среда",
-fixed:["Свекольный салат","Бутерброд с сыром","Квашеная капуста"],
-soups:["Харчо + Овощной суп-пюре","Lohikeitto + Яично-помидорный"],
-mains:["Курица Кун Пао + Ломо сальтадо","Кёнигсбергские клопсы + Индийское карри"]
-},
-
-{
-day:"Пятница",
-fixed:["Салат с фунчозой","Бутерброд с сыром","Маринованные помидоры"],
-soups:["Шурпа + Крем-суп грибной","Lohikeitto + Яично-помидорный"],
-mains:["Гуляш + Курица терияки","Кёнигсбергские клопсы + Индийское карри"]
+price:140000,
+soups:["Борщ","Щи"],
+mains:["Говядина","Курица"]
 }
 
 ]
-
 }
 
-// --- ВЫБОР МЕНЮ ---
-function renderMenuTypes(){
+// --- ДОПЫ ---
+const breadPrice = 10000
+const piePrice = 15000
 
-menuDiv.innerHTML = `
-<h2>Выберите меню</h2>
+const breadOptions = ["Органо","Орехи","Зира"]
+const pieOptions = ["Капуста","Картошка","Яйцо"]
 
-<button onclick="openMenu('russian')">Русское меню</button>
-<button onclick="openMenu('international')">Интернациональное меню</button>
-`
-
-}
-
-// --- ДНИ ---
-function openMenu(type){
-
-currentType = type
-currentMenu = menus[type]
-
-menuDiv.innerHTML = `
-<button onclick="renderMenuTypes()">← Назад</button>
-`
-
-currentMenu.forEach((set,i)=>{
-
-menuDiv.innerHTML += `
-<div class="card">
-<h2>${set.day}</h2>
-<button onclick="openDay(${i})">Выбрать</button>
+// --- UI ---
+function chip(text, active, onclick){
+return `
+<div class="glass-btn ${active ? 'active' : ''}" onclick="${onclick}">
+${text}
 </div>
 `
+}
 
+// --- ЭКРАН 1 ---
+function renderMenu(){
+
+currentMenu = menus.russian
+
+menuDiv.innerHTML = `<h2>Food Garden</h2>`
+
+currentMenu.forEach((set,i)=>{
+menuDiv.innerHTML += `
+<div class="card">
+<h3>${set.day}</h3>
+<div>${set.price.toLocaleString()}₫</div>
+<div class="glass-btn" onclick="openDay(${i})">Выбрать</div>
+</div>
+`
 })
 
 }
 
-// --- ДЕНЬ ---
+// --- ЭКРАН 2 ---
 function openDay(index){
 
 const set = currentMenu[index]
+if(!selection[set.day]) selection[set.day]={bread:[],pies:[]}
+
+const sel = selection[set.day]
 
 menuDiv.innerHTML = `
-<button onclick="openMenu('${currentType}')">← Назад</button>
+<div class="glass-btn" onclick="renderMenu()">← Назад</div>
 
 <h2>${set.day}</h2>
+<div><b>${set.price.toLocaleString()}₫</b></div>
 
-<h3>ФИКС</h3>
-<ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
+<h3>Суп</h3>
+${set.soups.map(s=>chip(s, sel.soup===s, `selectSoup('${set.day}','${s}')`)).join("")}
 
-<h3>СУПЫ</h3>
-${set.soups.map((s,i)=>`
-<label><input type="radio" name="soup" value="${s}" ${i===0?"checked":""}> ${s}</label><br>
-`).join("")}
+<h3>Второе</h3>
+${set.mains.map(m=>chip(m, sel.main===m, `selectMain('${set.day}','${m}')`)).join("")}
 
-<h3>ВТОРЫЕ</h3>
-${set.mains.map((m,i)=>`
-<label><input type="radio" name="main" value="${m}" ${i===0?"checked":""}> ${m}</label><br>
-`).join("")}
+<h3>Хлеб (+${breadPrice})</h3>
+${breadOptions.map(b=>chip(b, sel.bread.includes(b), `toggleBread('${set.day}','${b}')`)).join("")}
 
-<h3>ХЛЕБ</h3>
-${breadOptions.map(b=>`
-<label><input type="checkbox" name="bread" value="${b}"> ${b}</label><br>
-`).join("")}
+<h3>Пирожки (+${piePrice})</h3>
+${pieOptions.map(p=>chip(p, sel.pies.includes(p), `togglePies('${set.day}','${p}')`)).join("")}
 
-<h3>ПИРОЖКИ</h3>
-${pieOptions.map(p=>`
-<label><input type="checkbox" name="pies" value="${p}"> ${p}</label><br>
-`).join("")}
-
-<textarea id="comment" placeholder="Комментарий"></textarea>
-
-<button onclick="addToCart('${set.day}')">Добавить в корзину</button>
+<div class="glass-btn" onclick="addToCart(${index})">
+Добавить (${calculatePrice(set, sel).toLocaleString()}₫)
+</div>
 `
-
 }
 
-// --- ДОБАВИТЬ ---
-function addToCart(day){
+// --- ЛОГИКА ---
+function selectSoup(day,val){
+selection[day].soup = val
+rerender(day)
+}
 
-const soup = document.querySelector('input[name="soup"]:checked')?.value
-const main = document.querySelector('input[name="main"]:checked')?.value
+function selectMain(day,val){
+selection[day].main = val
+rerender(day)
+}
 
-if(!soup || !main){
+function toggleBread(day,val){
+const arr = selection[day].bread
+selection[day].bread = arr.includes(val) ? arr.filter(i=>i!==val) : [...arr,val]
+rerender(day)
+}
+
+function togglePies(day,val){
+const arr = selection[day].pies
+selection[day].pies = arr.includes(val) ? arr.filter(i=>i!==val) : [...arr,val]
+rerender(day)
+}
+
+function rerender(day){
+const i = currentMenu.findIndex(x=>x.day===day)
+openDay(i)
+}
+
+// --- ЦЕНА ---
+function calculatePrice(set, sel){
+
+let total = set.price
+total += (sel.bread?.length || 0) * breadPrice
+total += (sel.pies?.length || 0) * piePrice
+
+return total
+}
+
+// --- КОРЗИНА ---
+function addToCart(index){
+
+const set = currentMenu[index]
+const sel = selection[set.day]
+
+if(!sel.soup || !sel.main){
 alert("Выберите суп и второе")
 return
 }
 
-cart.push({day,soup,main})
+const price = calculatePrice(set, sel)
+
+cart.push({
+day:set.day,
+...sel,
+price
+})
+
 renderCart()
 alert("Добавлено")
-
 }
 
-// --- КОРЗИНА ---
 function renderCart(){
 
 if(cart.length === 0){
-cartDiv.innerHTML = ""
+cartDiv.innerHTML=""
 return
 }
 
+const total = cart.reduce((s,i)=>s+i.price,0)
+
 cartDiv.innerHTML = `
 <div class="cart">
-<b>Корзина (${cart.length})</b>
-<button onclick="checkout()">Оформить заказ</button>
+<b>Корзина (${cart.length})</b><br>
+Итого: ${total.toLocaleString()}₫
+<div class="glass-btn" onclick="checkout()">Оформить заказ</div>
 </div>
 `
-
 }
 
-// --- ОФОРМЛЕНИЕ ---
+// --- ОТПРАВКА ---
 function checkout(){
+
 tg.sendData(JSON.stringify({cart}))
-setTimeout(()=>tg.close(),500)
+tg.close()
+
 }
 
 // --- СТАРТ ---
-renderMenuTypes()
+renderMenu()
 
 </script>
 
