@@ -1,32 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Food Garden</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
+/* --- ОСНОВА --- */
 body{
 margin:0;
 padding:20px;
-font-family:sans-serif;
+font-family: system-ui, -apple-system, sans-serif;
 background: radial-gradient(circle at top, #4b2e2e, #2b1a1a);
 color:#f5f5f5;
 }
 
+/* --- ЗАГОЛОВОК --- */
+h2{
+margin-top:0;
+}
+
+/* --- КАРТОЧКИ --- */
 .card{
 background: rgba(255,255,255,0.05);
 backdrop-filter: blur(12px);
 border-radius:16px;
 padding:15px;
-margin:10px 0;
+margin:12px 0;
 box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
+/* --- СТЕКЛО-КНОПКИ --- */
 .glass-btn{
 background: rgba(46, 204, 113, 0.2);
 backdrop-filter: blur(10px);
@@ -38,14 +47,26 @@ text-align:center;
 color:#d4ffd9;
 font-weight:500;
 transition:0.2s;
+cursor:pointer;
+}
+
+.glass-btn:active{
+transform:scale(0.97);
 }
 
 .glass-btn.active{
 background: rgba(46,204,113,0.6);
 color:white;
-box-shadow: 0 0 10px rgba(46,204,113,0.5);
+box-shadow: 0 0 12px rgba(46,204,113,0.5);
 }
 
+/* --- СПИСКИ --- */
+ul{
+padding-left:18px;
+margin:10px 0;
+}
+
+/* --- КОРЗИНА --- */
 .cart{
 position:fixed;
 bottom:0;
@@ -54,7 +75,14 @@ right:0;
 background: rgba(0,0,0,0.6);
 backdrop-filter: blur(12px);
 padding:15px;
+border-top:1px solid rgba(255,255,255,0.1);
 }
+
+/* чтобы контент не перекрывался корзиной */
+#menu{
+padding-bottom:100px;
+}
+
 </style>
 
 </head>
@@ -64,283 +92,8 @@ padding:15px;
 <div id="menu"></div>
 <div id="cart"></div>
 
-<script>
-
-const tg = window.Telegram.WebApp
-tg.ready()
-
-const menuDiv = document.getElementById("menu")
-const cartDiv = document.getElementById("cart")
-
-let cart = []
-let selection = {}
-let currentMenu = null
-let currentType = null
-
-// --- МЕНЮ (ХЛЕБ УБРАН ИЗ FIXED) ---
-const menus = {
-
-russian: [
-
-{
-day:"Понедельник",
-fixed:[
-"Салат «Витаминный»",
-"Каша гречневая с грибами и луком",
-"Солёные огурцы"
-],
-soups:[
-"Борщ",
-"Гороховый суп"
-],
-mains:[
-"Говядина тушёная с картофельным пюре",
-"Куриная печень с рисом"
-]
-},
-
-{
-day:"Среда",
-fixed:[
-"Салат «Летний»",
-"Перловая каша с грибами и луком",
-"Квашеная капуста"
-],
-soups:[
-"Солянка",
-"Щи"
-],
-mains:[
-"Котлета свиная/говяжья с гречкой",
-"Котлета куриная с овощной смесью"
-]
-},
-
-{
-day:"Пятница",
-fixed:[
-"Свекольный салат с орехом",
-"Гороховая каша с грибами",
-"Маринованные помидоры"
-],
-soups:[
-"Куриный суп",
-"Рассольник"
-],
-mains:[
-"Курица запечённая с лапшой",
-"Свиные рёбра с тушёной капустой"
-]
-}
-
-],
-
-international: [
-
-{
-day:"Понедельник",
-fixed:[
-"Греческий салат",
-"Бутерброд с сыром",
-"Солёные огурцы"
-],
-soups:[
-"Шурпа",
-"Крем-суп грибной"
-],
-mains:[
-"Гуляш",
-"Курица терияки"
-]
-},
-
-{
-day:"Среда",
-fixed:[
-"Свекольный салат",
-"Бутерброд с сыром",
-"Квашеная капуста"
-],
-soups:[
-"Харчо",
-"Овощной суп-пюре"
-],
-mains:[
-"Курица Кун Пао",
-"Ломо сальтадо"
-]
-},
-
-{
-day:"Пятница",
-fixed:[
-"Салат с фунчозой",
-"Бутерброд с сыром",
-"Маринованные помидоры"
-],
-soups:[
-"Lohikeitto",
-"Яично-помидорный суп"
-],
-mains:[
-"Гуляш",
-"Индийское карри"
-]
-}
-
-]
-
-}
-
-// --- ДОПЫ ---
-const breadOptions = [
-"Пшеничный с орегано",
-"Пшеничный с орехами",
-"Пшеничный с зирой"
-]
-
-const pieOptions = [
-"С капустой",
-"С картошкой",
-"С яйцом"
-]
-
-// --- UI ---
-function chip(text, active, onclick){
-return `<div class="glass-btn ${active ? 'active' : ''}" onclick="${onclick}">${text}</div>`
-}
-
-// --- ВЫБОР МЕНЮ ---
-function renderTypes(){
-
-menuDiv.innerHTML = `
-<h2>Food Garden</h2>
-
-<div class="glass-btn" onclick="openMenu('russian')">Русское меню</div>
-<div class="glass-btn" onclick="openMenu('international')">Интернациональное меню</div>
-`
-
-}
-
-// --- ДНИ ---
-function openMenu(type){
-
-currentType = type
-currentMenu = menus[type]
-
-menuDiv.innerHTML = `<div class="glass-btn" onclick="renderTypes()">← Назад</div>`
-
-currentMenu.forEach((set,i)=>{
-menuDiv.innerHTML += `
-<div class="card">
-<h3>${set.day}</h3>
-<div class="glass-btn" onclick="openDay(${i})">Открыть</div>
-</div>
-`
-})
-
-}
-
-// --- ДЕНЬ ---
-function openDay(index){
-
-const set = currentMenu[index]
-
-if(!selection[set.day]){
-selection[set.day]={soup:null,main:null,bread:[],pies:[]}
-}
-
-const sel = selection[set.day]
-
-menuDiv.innerHTML = `
-<div class="glass-btn" onclick="openMenu('${currentType}')">← Назад</div>
-
-<h2>${set.day}</h2>
-
-<h3>Фиксированное меню</h3>
-<ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
-
-<h3>Суп</h3>
-${set.soups.map(s=>chip(s, sel.soup===s, `selectSoup('${set.day}','${s}')`)).join("")}
-
-<h3>Второе</h3>
-${set.mains.map(m=>chip(m, sel.main===m, `selectMain('${set.day}','${m}')`)).join("")}
-
-<h3>Добавить хлеб</h3>
-${breadOptions.map(b=>chip(b, sel.bread.includes(b), `toggleBread('${set.day}','${b}')`)).join("")}
-
-<h3>Пирожки</h3>
-${pieOptions.map(p=>chip(p, sel.pies.includes(p), `togglePies('${set.day}','${p}')`)).join("")}
-
-<div class="glass-btn" onclick="addToCart(${index})">Добавить в корзину</div>
-`
-
-}
-
-// --- ЛОГИКА ---
-function selectSoup(day,val){ selection[day].soup=val; rerender(day) }
-function selectMain(day,val){ selection[day].main=val; rerender(day) }
-
-function toggleBread(day,val){
-const arr = selection[day].bread
-selection[day].bread = arr.includes(val)?arr.filter(i=>i!==val):[...arr,val]
-rerender(day)
-}
-
-function togglePies(day,val){
-const arr = selection[day].pies
-selection[day].pies = arr.includes(val)?arr.filter(i=>i!==val):[...arr,val]
-rerender(day)
-}
-
-function rerender(day){
-const i = currentMenu.findIndex(x=>x.day===day)
-openDay(i)
-}
-
-// --- КОРЗИНА ---
-function addToCart(index){
-
-const set = currentMenu[index]
-const sel = selection[set.day]
-
-if(!sel.soup || !sel.main){
-alert("Выберите суп и второе")
-return
-}
-
-cart.push({day:set.day,...sel})
-renderCart()
-alert("Добавлено")
-}
-
-function renderCart(){
-
-if(cart.length===0){
-cartDiv.innerHTML=""
-return
-}
-
-cartDiv.innerHTML = `
-<div class="cart">
-<b>Корзина (${cart.length})</b>
-<div class="glass-btn" onclick="checkout()">Оформить заказ</div>
-</div>
-`
-}
-
-// --- ОТПРАВКА ---
-function checkout(){
-
-tg.sendData(JSON.stringify({cart}))
-tg.close()
-
-}
-
-// --- СТАРТ ---
-renderTypes()
-
-</script>
+<!-- ПОДКЛЮЧЕНИЕ JS -->
+<script src="app.js"></script>
 
 </body>
 </html>
