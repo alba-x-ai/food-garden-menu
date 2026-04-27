@@ -66,7 +66,9 @@ const tg = window.Telegram.WebApp
 tg.ready()
 
 let cart = []
+let currentMenu = null
 
+// --- ОБЩЕЕ ---
 const breadOptions = [
 "Пшеничный с орегано",
 "Пшеничный с грецкими орехами и семенами чиа и льна",
@@ -79,7 +81,65 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-const sets = [
+// --- МЕНЮ ---
+const menus = {
+
+russian: [
+
+{
+day:"Понедельник",
+fixed:[
+"Греческий салат",
+"Бутерброд с сыром",
+"Солёные огурцы"
+],
+soups:[
+"Борщ",
+"Гороховый суп с копчёностями"
+],
+mains:[
+"Гуляш с картофельным пюре",
+"Куриная печень с рисом"
+]
+},
+
+{
+day:"Среда",
+fixed:[
+"Свекольный салат",
+"Бутерброд с сыром",
+"Квашеная капуста"
+],
+soups:[
+"Солянка",
+"Щи"
+],
+mains:[
+"Котлета свинина/говядина с гречкой",
+"Котлета куриная с овощами"
+]
+},
+
+{
+day:"Пятница",
+fixed:[
+"Салат с фунчозой",
+"Бутерброд с сыром",
+"Маринованные помидоры"
+],
+soups:[
+"Куриный суп",
+"Рассольник"
+],
+mains:[
+"Курица с лапшой",
+"Свиные рёбра с капустой"
+]
+}
+
+],
+
+international: [
 
 {
 day:"Понедельник",
@@ -93,8 +153,8 @@ soups:[
 "Харчо + Овощной суп-пюре"
 ],
 mains:[
-"Гуляш с картофельным пюре + Курица терияки с запечёнными овощами",
-"Курица Кун Пао с рисом + Ломо сальтадо"
+"Гуляш + Курица терияки",
+"Курица Кун Пао + Ломо сальтадо"
 ]
 },
 
@@ -110,8 +170,8 @@ soups:[
 "Lohikeitto + Яично-помидорный"
 ],
 mains:[
-"Курица Кун Пао с рисом + Ломо сальтадо",
-"Кёнигсбергские клопсы с картофелем + Индийское карри с рисом"
+"Курица Кун Пао + Ломо сальтадо",
+"Кёнигсбергские клопсы + Индийское карри"
 ]
 },
 
@@ -127,92 +187,110 @@ soups:[
 "Lohikeitto + Яично-помидорный"
 ],
 mains:[
-"Гуляш с картофельным пюре + Курица терияки с запечёнными овощами",
-"Кёнигсбергские клопсы с картофелем + Индийское карри с рисом"
+"Гуляш + Курица терияки",
+"Кёнигсбергские клопсы + Индийское карри"
 ]
 }
 
 ]
 
-const container = document.getElementById("menu")
+}
 
-function renderDays(){
-container.innerHTML=""
+// --- ВЫБОР ТИПА МЕНЮ ---
+function renderMenuTypes(){
 
-sets.forEach((set,i)=>{
-container.innerHTML += `
+menu.innerHTML = `
+
+<div class="card">
+<h2>Выберите меню</h2>
+
+<button onclick="openMenu('russian')">Русское меню</button>
+<button onclick="openMenu('international')">Интернациональное меню</button>
+
+</div>
+
+`
+
+}
+
+// --- ОТКРЫТЬ МЕНЮ ---
+function openMenu(type){
+
+currentMenu = menus[type]
+
+menu.innerHTML = ""
+
+currentMenu.forEach((set,i)=>{
+
+menu.innerHTML += `
 <div class="card">
 <h2>${set.day}</h2>
 <button onclick="openDay(${i})">Открыть</button>
 </div>
 `
+
 })
+
 }
 
+// --- ДЕНЬ ---
 function openDay(index){
 
-const set = sets[index]
+const set = currentMenu[index]
 
-container.innerHTML = `
+menu.innerHTML = `
 
 <div class="card">
 
 <h2>${set.day}</h2>
 
 <h3>ФИКС</h3>
-<ul>
-${set.fixed.map(i=>`<li>${i}</li>`).join("")}
-</ul>
+<ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
 
 <h3>Пара супов на выбор</h3>
 ${set.soups.map((s,i)=>`
 <div class="option">
-<label>
-<input type="radio" name="soup" value="${s}" ${i===0?"checked":""}>
-${s}
-</label>
+<label><input type="radio" name="soup" value="${s}" ${i===0?"checked":""}> ${s}</label>
 </div>
 `).join("")}
 
 <h3>Вторые блюда на выбор</h3>
 ${set.mains.map((m,i)=>`
 <div class="option">
-<label>
-<input type="radio" name="main" value="${m}" ${i===0?"checked":""}>
-${m}
-</label>
+<label><input type="radio" name="main" value="${m}" ${i===0?"checked":""}> ${m}</label>
 </div>
 `).join("")}
 
 <h3>Хлеб:</h3>
 ${breadOptions.map(b=>`
 <div class="option">
-<label>
-<input type="checkbox" name="bread" value="${b}">
-${b}
-</label>
+<label><input type="checkbox" name="bread" value="${b}"> ${b}</label>
 </div>
 `).join("")}
 
 <h3>Пирожки:</h3>
 ${pieOptions.map(p=>`
 <div class="option">
-<label>
-<input type="checkbox" name="pies" value="${p}">
-${p}
-</label>
+<label><input type="checkbox" name="pies" value="${p}"> ${p}</label>
 </div>
 `).join("")}
 
 <textarea id="comment" placeholder="Комментарий" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;"></textarea>
 
 <button onclick="addToCart('${set.day}')">Добавить в корзину</button>
-<button onclick="renderDays()">← Назад</button>
+<button onclick="openMenuBack()">← Назад</button>
 
 </div>
 `
+
 }
 
+// --- НАЗАД ---
+function openMenuBack(){
+renderMenuTypes()
+}
+
+// --- ДОБАВИТЬ ---
 function addToCart(day){
 
 const soup = document.querySelector('input[name="soup"]:checked')?.value
@@ -225,25 +303,17 @@ return
 
 const breads = [...document.querySelectorAll('input[name="bread"]:checked')].map(i=>i.value)
 const pies = [...document.querySelectorAll('input[name="pies"]:checked')].map(i=>i.value)
-
 const comment = document.getElementById("comment").value
 
-cart.push({
-day,
-soup,
-main,
-bread:breads,
-pies:pies,
-comment
-})
+cart.push({day,soup,main,bread:breads,pies:pies,comment})
 
 renderCart()
 alert("Добавлено")
+
 }
 
+// --- КОРЗИНА ---
 function renderCart(){
-
-const cartDiv = document.getElementById("cart")
 
 if(cart.length === 0){
 cartDiv.innerHTML = ""
@@ -256,14 +326,11 @@ cartDiv.innerHTML = `
 <button onclick="checkout()">Оформить заказ</button>
 </div>
 `
+
 }
 
+// --- ОФОРМЛЕНИЕ ---
 function checkout(){
-
-if(cart.length === 0){
-alert("Корзина пуста")
-return
-}
 
 tg.sendData(JSON.stringify({cart}))
 
@@ -273,7 +340,8 @@ tg.close()
 
 }
 
-renderDays()
+// --- СТАРТ ---
+renderMenuTypes()
 
 </script>
 
