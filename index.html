@@ -77,7 +77,7 @@ let selection = {}
 let currentMenu = null
 let currentType = null
 
-// --- ПОЛНЫЕ МЕНЮ ---
+// --- МЕНЮ (ХЛЕБ УБРАН ИЗ FIXED) ---
 const menus = {
 
 russian: [
@@ -85,7 +85,6 @@ russian: [
 {
 day:"Понедельник",
 fixed:[
-"Хлеб пшеничный с зирой",
 "Салат «Витаминный»",
 "Каша гречневая с грибами и луком",
 "Солёные огурцы"
@@ -103,7 +102,6 @@ mains:[
 {
 day:"Среда",
 fixed:[
-"Хлеб пшеничный с орегано",
 "Салат «Летний»",
 "Перловая каша с грибами и луком",
 "Квашеная капуста"
@@ -121,7 +119,6 @@ mains:[
 {
 day:"Пятница",
 fixed:[
-"Хлеб с орехами и семенами",
 "Свекольный салат с орехом",
 "Гороховая каша с грибами",
 "Маринованные помидоры"
@@ -210,7 +207,7 @@ const pieOptions = [
 
 // --- UI ---
 function chip(text, active, onclick){
-return `<div class="glass-btn ${active?'active':''}" onclick="${onclick}">${text}</div>`
+return `<div class="glass-btn ${active ? 'active' : ''}" onclick="${onclick}">${text}</div>`
 }
 
 // --- ВЫБОР МЕНЮ ---
@@ -249,7 +246,9 @@ function openDay(index){
 
 const set = currentMenu[index]
 
-if(!selection[set.day]) selection[set.day]={bread:[],pies:[]}
+if(!selection[set.day]){
+selection[set.day]={soup:null,main:null,bread:[],pies:[]}
+}
 
 const sel = selection[set.day]
 
@@ -267,7 +266,7 @@ ${set.soups.map(s=>chip(s, sel.soup===s, `selectSoup('${set.day}','${s}')`)).joi
 <h3>Второе</h3>
 ${set.mains.map(m=>chip(m, sel.main===m, `selectMain('${set.day}','${m}')`)).join("")}
 
-<h3>Дополнительно хлеб</h3>
+<h3>Добавить хлеб</h3>
 ${breadOptions.map(b=>chip(b, sel.bread.includes(b), `toggleBread('${set.day}','${b}')`)).join("")}
 
 <h3>Пирожки</h3>
@@ -317,7 +316,10 @@ alert("Добавлено")
 
 function renderCart(){
 
-if(cart.length===0){ cartDiv.innerHTML=""; return }
+if(cart.length===0){
+cartDiv.innerHTML=""
+return
+}
 
 cartDiv.innerHTML = `
 <div class="cart">
