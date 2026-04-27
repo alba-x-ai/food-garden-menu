@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <meta charset="UTF-8">
@@ -15,46 +14,69 @@
 body{
 font-family:sans-serif;
 margin:0;
-padding:20px;
-background:#f2f2f2;
+padding:16px;
+background:#f5f5f5;
 }
 
 h1{
 text-align:center;
+margin-bottom:20px;
 }
 
 .card{
 background:white;
-padding:20px;
+padding:16px;
+border-radius:16px;
+margin-bottom:16px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.section-title{
+font-weight:bold;
+margin-top:20px;
+margin-bottom:10px;
+font-size:18px;
+}
+
+.sub{
+color:#888;
+font-size:13px;
+margin-bottom:10px;
+}
+
+.option{
+background:#fafafa;
 border-radius:12px;
-margin-bottom:20px;
+padding:14px;
+margin-top:10px;
+cursor:pointer;
+border:2px solid transparent;
+transition:0.2s;
+}
+
+.option:hover{
+background:#f0f0f0;
+}
+
+.option.selected{
+border:2px solid #2ecc71;
+background:#eafaf1;
 }
 
 button{
 width:100%;
 padding:14px;
 border:none;
-border-radius:10px;
-margin-top:10px;
+border-radius:12px;
+margin-top:15px;
 font-size:16px;
 background:#2ecc71;
 color:white;
+font-weight:bold;
 }
 
 .gray{
-background:#aaa;
-}
-
-.option{
-border:1px solid #ddd;
-padding:10px;
-border-radius:8px;
-margin-top:8px;
-cursor:pointer;
-}
-
-.option.selected{
-border:2px solid #2ecc71;
+background:#ccc;
 }
 
 .hidden{
@@ -80,64 +102,58 @@ padding:15px;
 <h1>Food Garden</h1>
 
 <div id="menuType" class="card">
+<div class="section-title">Выберите меню</div>
 
-<h2>Выберите меню</h2>
-
-<button onclick="selectMenu('russian')">🇷🇺 Русское меню</button>
-<button onclick="selectMenu('international')">🌍 Интернациональное меню</button>
-
+<div class="option" onclick="selectMenu('russian')">🇷🇺 Русское меню</div>
+<div class="option" onclick="selectMenu('international')">🌍 Интернациональное меню</div>
 </div>
 
 
 <div id="daySelect" class="card hidden">
+<div class="section-title">Выберите день</div>
 
-<h2>Выберите день</h2>
-
-<button onclick="selectDay('Понедельник')">Понедельник</button>
-<button onclick="selectDay('Среда')">Среда</button>
-<button onclick="selectDay('Пятница')">Пятница</button>
+<div class="option" onclick="selectDay('Понедельник')">Понедельник</div>
+<div class="option" onclick="selectDay('Среда')">Среда</div>
+<div class="option" onclick="selectDay('Пятница')">Пятница</div>
 
 <button class="gray" onclick="backToMenu()">← Назад</button>
-
 </div>
 
 
 <div id="mealSelect" class="card hidden">
 
-<h2 id="mealTitle"></h2>
+<div class="section-title" id="mealTitle"></div>
 
-<h3>Фикс</h3>
+<div class="section-title">Входит в набор</div>
 <div id="fix"></div>
 
-<h3>Суп</h3>
+<div class="section-title">Выберите суп</div>
+<div class="sub">Обязательно выбрать один</div>
 <div id="soups"></div>
 
-<h3>Второе</h3>
+<div class="section-title">Выберите второе</div>
+<div class="sub">Обязательно выбрать один</div>
 <div id="mains"></div>
 
-<!-- 🔥 ВАЖНО: НОВЫЕ БЛОКИ -->
+<div class="section-title">➕ Дополнительно</div>
 
-<h3>Хлеб</h3>
+<div class="sub">Хлеб (по желанию)</div>
 <div id="breadOptions"></div>
 
-<h3>Пирожки</h3>
+<div class="sub">Пирожки (по желанию)</div>
 <div id="piesOptions"></div>
 
-<textarea id="comment" placeholder="Комментарий"></textarea>
+<textarea id="comment" placeholder="Комментарий" style="width:100%;margin-top:10px;"></textarea>
 
 <button onclick="addToCart()">Добавить в корзину</button>
-
 <button class="gray" onclick="backToDays()">← Назад</button>
 
 </div>
 
 
 <div id="cart" class="cart hidden">
-
 <div id="cartItems"></div>
-
 <button onclick="checkout()">Оформить заказ</button>
-
 </div>
 
 
@@ -150,7 +166,6 @@ let selectedMenu=null
 let selectedDay=null
 let selectedSoup=null
 let selectedMain=null
-
 let selectedBread=null
 let selectedPies=null
 
@@ -158,57 +173,38 @@ let cart=[]
 
 
 const breads=[
-"Пшеничный с орегано",
-"Пшеничный с орехами и семенами",
-"Пшеничный с зирой"
+"🥖 С орегано",
+"🌾 С орехами и семенами",
+"🌿 С зирой"
 ]
 
-const piesOptions=[
-"С капустой",
-"С картошкой",
-"С яйцом, луком и рисом"
+const pies=[
+"🥟 С капустой",
+"🥟 С картошкой",
+"🥟 С яйцом и рисом"
 ]
 
 
 const menus={
 
-russian:{
-Понедельник:{
-fix:["Салат «Летний»","Гречка","Огурцы"],
-soups:["Борщ","Куриный суп"],
-mains:["Говядина + пюре","Котлета + гречка"]
-},
-Среда:{
-fix:["Свекольный салат","Перловка","Капуста"],
-soups:["Куриный суп","Солянка"],
-mains:["Котлета","Курица"]
-},
-Пятница:{
-fix:["Салат","Гороховая каша","Помидоры"],
-soups:["Борщ","Солянка"],
-mains:["Говядина","Курица"]
-}
-},
-
 international:{
-Понедельник:{
-fix:["Greek salad","Sandwich","Cucumbers"],
-soups:["Shurpa","Kharcho"],
-mains:["Goulash","Teriyaki chicken"]
-},
-Среда:{
-fix:["Beet salad","Sandwich","Cabbage"],
-soups:["Kharcho","Lohikeitto"],
-mains:["Kung Pao","Meatballs"]
-},
 Пятница:{
 fix:["Salad","Sandwich","Tomatoes"],
-soups:["Shurpa","Lohikeitto"],
-mains:["Goulash","Meatballs"]
+soups:["🥣 Shurpa","🥣 Lohikeitto"],
+mains:["🍖 Goulash","🍗 Meatballs"]
+}
+},
+
+russian:{
+Пятница:{
+fix:["Салат","Гречка","Огурцы"],
+soups:["🥣 Борщ","🥣 Куриный суп"],
+mains:["🍖 Говядина","🍗 Курица"]
 }
 }
 
 }
+
 
 
 function selectMenu(menu){
@@ -239,88 +235,61 @@ function renderMeals(){
 
 const data=menus[selectedMenu][selectedDay]
 
-mealTitle.innerText=selectedDay
+mealTitle.innerText = selectedDay
 
 fix.innerHTML=data.fix.join("<br>")
 
-
-soups.innerHTML=""
-data.soups.forEach(s=>{
-const el=document.createElement("div")
-el.className="option"
-el.innerText=s
-el.onclick=()=>{
-selectedSoup=s
-document.querySelectorAll("#soups .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-}
-soups.appendChild(el)
+renderList("soups", data.soups, val=>{
+selectedSoup=val
 })
 
-
-mains.innerHTML=""
-data.mains.forEach(m=>{
-const el=document.createElement("div")
-el.className="option"
-el.innerText=m
-el.onclick=()=>{
-selectedMain=m
-document.querySelectorAll("#mains .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-}
-mains.appendChild(el)
+renderList("mains", data.mains, val=>{
+selectedMain=val
 })
 
-
-renderExtras()
-
-}
-
-
-function renderExtras(){
-
-breadOptions.innerHTML=""
-breads.forEach(b=>{
-const el=document.createElement("div")
-el.className="option"
-el.innerText=b
-el.onclick=()=>{
-selectedBread=b
-document.querySelectorAll("#breadOptions .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-}
-breadOptions.appendChild(el)
+renderList("breadOptions", breads, val=>{
+selectedBread=val
 })
 
-
-piesOptions.innerHTML=""
-piesOptionsArr.forEach(p=>{
-const el=document.createElement("div")
-el.className="option"
-el.innerText=p
-el.onclick=()=>{
-selectedPies=p
-document.querySelectorAll("#piesOptions .option").forEach(o=>o.classList.remove("selected"))
-el.classList.add("selected")
-}
-piesOptions.appendChild(el)
+renderList("piesOptions", pies, val=>{
+selectedPies=val
 })
 
 }
 
 
-const piesOptionsArr = piesOptions
+function renderList(id, arr, onSelect){
+
+const container=document.getElementById(id)
+container.innerHTML=""
+
+arr.forEach(item=>{
+
+const el=document.createElement("div")
+el.className="option"
+el.innerText=item
+
+el.onclick=()=>{
+onSelect(item)
+container.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"))
+el.classList.add("selected")
+}
+
+container.appendChild(el)
+
+})
+
+}
 
 
 function addToCart(){
 
-if(!selectedSoup||!selectedMain){
+if(!selectedSoup || !selectedMain){
 alert("Выберите суп и второе")
 return
 }
 
 cart.push({
-menu:selectedMenu,
 day:selectedDay,
 soup:selectedSoup,
 main:selectedMain,
@@ -335,15 +304,18 @@ renderCart()
 
 function renderCart(){
 
-cart.classList.remove("hidden")
+cartDiv = document.getElementById("cart")
+items = document.getElementById("cartItems")
 
-cartItems.innerHTML=cart.map(i=>`
+cartDiv.classList.remove("hidden")
+
+items.innerHTML = cart.map(i=>`
 <div>
 <b>${i.day}</b><br>
 ${i.soup}<br>
 ${i.main}<br>
-${i.bread? "Хлеб: "+i.bread+"<br>":""}
-${i.pies? "Пирожки: "+i.pies+"<br>":""}
+${i.bread ? i.bread+"<br>" : ""}
+${i.pies ? i.pies+"<br>" : ""}
 </div>
 `).join("<hr>")
 
