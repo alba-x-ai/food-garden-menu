@@ -11,59 +11,73 @@
 
 <style>
 
-/* --- ОСНОВА --- */
+/* --- ГЛУБОКИЙ КОРИЧНЕВЫЙ (премиум) --- */
 body{
 margin:0;
 padding:20px;
 font-family: system-ui, -apple-system, sans-serif;
-background: radial-gradient(circle at top, #4b2e2e, #2b1a1a);
+
+/* новый фон */
+background:
+radial-gradient(circle at top, #3a1f1f, #1a0f0f);
+
 color:#f5f5f5;
 }
 
-/* --- ЗАГОЛОВОК --- */
+/* --- ЗАГОЛОВКИ --- */
 h2{
 margin-top:0;
+font-weight:600;
+letter-spacing:0.5px;
 }
 
 /* --- КАРТОЧКИ --- */
 .card{
-background: rgba(255,255,255,0.05);
-backdrop-filter: blur(12px);
-border-radius:16px;
-padding:15px;
-margin:12px 0;
-box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+background: rgba(255,255,255,0.04);
+backdrop-filter: blur(14px);
+border-radius:18px;
+padding:16px;
+margin:14px 0;
+box-shadow:
+0 6px 30px rgba(0,0,0,0.6),
+inset 0 0 0 1px rgba(255,255,255,0.05);
 }
 
 /* --- СТЕКЛО-КНОПКИ --- */
 .glass-btn{
-background: rgba(46, 204, 113, 0.2);
-backdrop-filter: blur(10px);
-border:1px solid rgba(46,204,113,0.4);
-border-radius:14px;
-padding:12px;
+background: rgba(46, 204, 113, 0.18);
+backdrop-filter: blur(12px);
+border:1px solid rgba(46,204,113,0.35);
+border-radius:16px;
+padding:13px;
 margin-top:10px;
 text-align:center;
-color:#d4ffd9;
+color:#d8ffe0;
 font-weight:500;
 transition:0.2s;
 cursor:pointer;
 }
 
+/* нажатие */
 .glass-btn:active{
-transform:scale(0.97);
+transform:scale(0.96);
+background: rgba(46,204,113,0.35);
 }
 
+/* выбранное */
 .glass-btn.active{
-background: rgba(46,204,113,0.6);
+background: rgba(46,204,113,0.65);
 color:white;
-box-shadow: 0 0 12px rgba(46,204,113,0.5);
+box-shadow:
+0 0 15px rgba(46,204,113,0.6),
+0 0 30px rgba(46,204,113,0.2);
 }
 
 /* --- СПИСКИ --- */
 ul{
 padding-left:18px;
 margin:10px 0;
+line-height:1.5;
 }
 
 /* --- КОРЗИНА --- */
@@ -72,15 +86,15 @@ position:fixed;
 bottom:0;
 left:0;
 right:0;
-background: rgba(0,0,0,0.6);
-backdrop-filter: blur(12px);
-padding:15px;
-border-top:1px solid rgba(255,255,255,0.1);
+background: rgba(10,10,10,0.7);
+backdrop-filter: blur(16px);
+padding:16px;
+border-top:1px solid rgba(255,255,255,0.08);
 }
 
-/* чтобы контент не перекрывался корзиной */
+/* чтобы контент не перекрывался */
 #menu{
-padding-bottom:100px;
+padding-bottom:120px;
 }
 
 </style>
@@ -92,7 +106,6 @@ padding-bottom:100px;
 <div id="menu"></div>
 <div id="cart"></div>
 
-<!-- ПОДКЛЮЧЕНИЕ JS -->
 <script src="app.js"></script>
 
 </body>
