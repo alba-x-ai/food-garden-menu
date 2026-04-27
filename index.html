@@ -67,8 +67,9 @@ tg.ready()
 
 let cart = []
 let currentMenu = null
+let currentType = null
 
-// --- ДОПОЛНИТЕЛЬНО (1 в 1 с меню)
+// --- ОБЩЕЕ ---
 const breadOptions = [
 "Пшеничный с орегано",
 "Пшеничный с грецкими орехами и семенами чиа и льна",
@@ -81,7 +82,7 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-// --- МЕНЮ ---
+// --- ДВА МЕНЮ ---
 const menus = {
 
 russian: [
@@ -137,6 +138,61 @@ mains:[
 ]
 }
 
+],
+
+international: [
+
+{
+day:"Понедельник",
+fixed:[
+"Греческий салат",
+"Бутерброд с сыром",
+"Солёные огурцы"
+],
+soups:[
+"Шурпа + Крем-суп грибной",
+"Харчо + Овощной суп-пюре"
+],
+mains:[
+"Гуляш с картофельным пюре + Курица терияки с запечёнными овощами",
+"Курица Кун Пао с рисом + Ломо сальтадо"
+]
+},
+
+{
+day:"Среда",
+fixed:[
+"Свекольный салат",
+"Бутерброд с сыром",
+"Квашеная капуста"
+],
+soups:[
+"Харчо + Овощной суп-пюре",
+"Lohikeitto + Яично-помидорный"
+],
+mains:[
+"Курица Кун Пао с рисом + Ломо сальтадо",
+"Кёнигсбергские клопсы с картофелем + Индийское карри с рисом"
+]
+},
+
+{
+day:"Пятница",
+fixed:[
+"Салат с фунчозой",
+"Бутерброд с сыром",
+"Маринованные помидоры"
+],
+soups:[
+"Шурпа + Крем-суп грибной",
+"Lohikeitto + Яично-помидорный"
+],
+mains:[
+"Гуляш с картофельным пюре + Курица терияки с запечёнными овощами",
+"Кёнигсбергские клопсы с картофелем + Индийское карри с рисом"
+]
+}
+
 ]
 
 }
@@ -146,16 +202,20 @@ function renderMenuTypes(){
 
 menu.innerHTML = `
 <div class="card">
-<h2>Русское меню</h2>
-<button onclick="openMenu('russian')">Открыть</button>
+<h2>Выберите меню</h2>
+
+<button onclick="openMenu('russian')">Русское меню</button>
+<button onclick="openMenu('international')">Интернациональное меню</button>
+
 </div>
 `
 
 }
 
-// --- ДНИ ---
+// --- ОТКРЫТЬ МЕНЮ ---
 function openMenu(type){
 
+currentType = type
 currentMenu = menus[type]
 
 menu.innerHTML = ""
@@ -218,7 +278,7 @@ ${pieOptions.map(p=>`
 <textarea id="comment" placeholder="Комментарий" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;"></textarea>
 
 <button onclick="addToCart('${set.day}')">Добавить в корзину</button>
-<button onclick="openMenu('russian')">← Назад</button>
+<button onclick="openMenu(currentType)">← Назад</button>
 
 </div>
 `
@@ -281,5 +341,4 @@ renderMenuTypes()
 </script>
 
 </body>
-
 </html>
