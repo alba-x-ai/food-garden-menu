@@ -136,24 +136,20 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-// --- UI (теперь button) ---
+// --- UI ---
 function chip(text, active, onclick){
 return `<button class="${active ? 'active' : ''}" onclick="${onclick}">${text}</button>`
 }
 
-function header(){
-return `<button class="orderBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>`
-}
-
-// --- ГЛАВНЫЙ ---
+// --- ГЛАВНЫЙ ЭКРАН ---
 function renderTypes(){
+
 menuDiv.innerHTML = `
 <h1>Food Garden</h1>
-${header()}
-<div class="setCard">
+
+<div class="topBlock">
+<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button onclick="openMenu('russian')">Русское меню</button>
-</div>
-<div class="setCard">
 <button onclick="openMenu('international')">Интернациональное меню</button>
 </div>
 `
@@ -166,19 +162,20 @@ currentType = type
 currentMenu = menus[type]
 
 menuDiv.innerHTML = `
-${header()}
+<div class="topBlock">
+<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button class="backBtn" onclick="renderTypes()">← Назад</button>
+</div>
 `
 
 currentMenu.forEach((set,i)=>{
 menuDiv.innerHTML += `
 <div class="setCard">
 <h2>${set.day}</h2>
-<button onclick="openDay(${i})">Открыть</button>
+<button onclick="openDay(${i})">Открыть меню</button>
 </div>
 `
 })
-
 }
 
 // --- ДЕНЬ ---
@@ -193,8 +190,10 @@ selection[set.day] = { soup:null, main:null, bread:null, pies:null }
 const sel = selection[set.day]
 
 menuDiv.innerHTML = `
-${header()}
+<div class="topBlock">
+<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button class="backBtn" onclick="openMenu('${currentType}')">← Назад</button>
+</div>
 
 <div class="setFull">
 
@@ -244,27 +243,50 @@ return
 }
 
 cart.push({...sel, day:set.day})
+
 alert("Добавлено")
+}
+
+// --- УДАЛЕНИЕ ---
+function removeFromCart(index){
+cart.splice(index,1)
+openCart()
+}
+
+// --- ОЧИСТКА ---
+function clearCart(){
+cart = []
+openCart()
 }
 
 // --- КОРЗИНА ---
 function openCart(){
 
 menuDiv.innerHTML = `
+<div class="topBlock">
 <button class="backBtn" onclick="renderTypes()">← Назад</button>
+</div>
+
 <h2>Корзина</h2>
 
-${cart.map(i=>`
+${cart.length === 0 ? "<p>Корзина пуста</p>" : ""}
+
+${cart.map((i,index)=>`
 <div class="setCard">
 <b>${i.day}</b><br>
 Супы: ${i.soup}<br>
 Второе: ${i.main}<br>
 Хлеб: ${i.bread || "-"}<br>
 Пирожки: ${i.pies || "-"}
+
+<button class="removeBtn" onclick="removeFromCart(${index})">Удалить</button>
 </div>
 `).join("")}
 
+${cart.length > 0 ? `
+<button class="clearBtn" onclick="clearCart()">Очистить корзину</button>
 <button class="orderBtn" onclick="checkout()">Оформить заказ</button>
+` : ""}
 `
 }
 
