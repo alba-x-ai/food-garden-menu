@@ -1,91 +1,24 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Food Garden</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<style>
-
-/* --- ФОН (МОЛОЧНЫЙ / КРЕМОВЫЙ) --- */
-body{
-margin:0;
-padding:20px;
-font-family: system-ui, -apple-system, sans-serif;
-
-background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
-color:#1a1a1a;
-}
-
-/* --- ЗАГОЛОВКИ --- */
-h2{
-margin-top:0;
-font-weight:600;
-}
-
-/* --- КАРТОЧКИ --- */
-.card{
-background: rgba(255,255,255,0.7);
-backdrop-filter: blur(12px);
-border-radius:18px;
-padding:16px;
-margin:14px 0;
-
-box-shadow:
-0 6px 20px rgba(0,0,0,0.08),
-inset 0 0 0 1px rgba(255,255,255,0.6);
-}
-
-/* --- КНОПКИ --- */
-.glass-btn{
-background: rgba(46,204,113,0.15);
-backdrop-filter: blur(10px);
-border:1px solid rgba(46,204,113,0.35);
-border-radius:16px;
-padding:14px;
-margin-top:10px;
-text-align:center;
-color:#1a3d2f;
-font-weight:500;
-cursor:pointer;
-transition:0.2s;
-}
-
-.glass-btn:active{
-transform:scale(0.96);
-}
-
-/* активное состояние */
-.glass-btn.active{
-background: rgba(46,204,113,0.6);
-color:white;
-box-shadow:
-0 0 10px rgba(46,204,113,0.4);
-}
-
-/* --- СПИСКИ --- */
-ul{
-padding-left:18px;
-line-height:1.5;
-}
-
-/* --- ОТСТУП СНИЗУ --- */
-#menu{
-padding-bottom:100px;
-}
-
-</style>
+<link rel="stylesheet" href="style.css?v=5">
 
 </head>
 
 <body>
 
-<div id="menu"></div>
+<div id="app">
+    <div id="menu"></div>
+</div>
 
-<script src="app.js?v=11"></script>
+<script src="app.js?v=20"></script>
 
 </body>
 </html>
