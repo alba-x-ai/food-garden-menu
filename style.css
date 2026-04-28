@@ -1,3 +1,4 @@
+/* --- БАЗА --- */
 body{ 
 font-family: system-ui, -apple-system, sans-serif;
 margin:0;
@@ -7,7 +8,7 @@ background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
 color:#1a1a1a;
 }
 
-/* --- заголовок --- */
+/* --- ЗАГОЛОВОК --- */
 h1{
 text-align:center;
 margin-bottom:20px;
@@ -15,7 +16,7 @@ color:#1f5f3f;
 font-weight:600;
 }
 
-/* --- описание --- */
+/* --- ИНФО --- */
 #setInfo{
 text-align:center;
 margin-bottom:20px;
@@ -23,14 +24,14 @@ font-size:14px;
 color:#6b6b6b;
 }
 
-/* --- контейнер --- */
+/* --- КОНТЕЙНЕР --- */
 #menu{
 display:flex;
 flex-direction:column;
 gap:16px;
 }
 
-/* --- верхний блок (меню + корзина) --- */
+/* --- ВЕРХНИЙ БЛОК --- */
 .topBlock{
 display:flex;
 flex-direction:column;
@@ -38,10 +39,10 @@ gap:10px;
 margin-bottom:10px;
 }
 
-/* --- карточки --- */
+/* --- КАРТОЧКИ ДНЕЙ --- */
 .setCard{
-background: rgba(255,255,255,0.75);
-backdrop-filter: blur(12px);
+background: rgba(255,255,255,0.8);
+backdrop-filter: blur(10px);
 border-radius:16px;
 padding:16px;
 
@@ -55,30 +56,41 @@ margin:0 0 10px 0;
 font-weight:600;
 }
 
-/* --- экран дня --- */
+/* --- ЭКРАН ВЫБОРА --- */
 .setFull{
-background: rgba(255,255,255,0.8);
-backdrop-filter: blur(14px);
+background: rgba(255,255,255,0.85);
+backdrop-filter: blur(12px);
 border-radius:18px;
 padding:20px;
 
+display:flex;
+flex-direction:column;
+gap:14px;
+
 box-shadow:
-0 10px 30px rgba(0,0,0,0.1),
+0 8px 30px rgba(0,0,0,0.1),
 inset 0 0 0 1px rgba(255,255,255,0.6);
 }
 
-/* --- списки --- */
+/* --- СЕКЦИИ --- */
+.setFull h3{
+margin:0;
+font-size:15px;
+font-weight:600;
+color:#2c2c2c;
+}
+
+/* --- СПИСКИ --- */
 .setFull ul{
 padding-left:18px;
-margin-bottom:20px;
-line-height:1.5;
+margin:0;
 }
 
 .setFull li{
 margin-bottom:6px;
 }
 
-/* --- кнопки (главное исправление) --- */
+/* --- КНОПКИ (ГЛАВНОЕ) --- */
 button{
 display:block;
 width:100%;
@@ -87,24 +99,24 @@ background: rgba(46,204,113,0.15);
 border:1px solid rgba(46,204,113,0.35);
 color:#1a3d2f;
 
-padding:14px;
-border-radius:14px;
+padding:12px;
+border-radius:12px;
 
-font-size:15px;
+font-size:14px;
 font-weight:500;
 
 cursor:pointer;
-transition:0.2s;
+transition:all 0.2s ease;
 
-margin-top:10px;
+margin-top:8px;
 }
 
 /* hover */
 button:hover{
-background: rgba(46,204,113,0.35);
+background: rgba(46,204,113,0.3);
 }
 
-/* active */
+/* активное */
 button:active{
 transform:scale(0.97);
 }
@@ -116,44 +128,63 @@ color:white;
 box-shadow:0 4px 12px rgba(46,125,50,0.3);
 }
 
-/* --- кнопка корзины --- */
-.cartBtn{
-background:#2e7d32;
+/* --- ОСНОВНЫЕ КНОПКИ --- */
+.orderBtn{
+background:#4CAF50;
 color:white;
 font-weight:600;
+font-size:15px;
+margin-top:14px;
 }
 
-/* --- кнопка заказа --- */
-.orderBtn{
-margin-top:16px;
-font-size:16px;
-}
-
-/* --- кнопка назад --- */
 .backBtn{
 background:#e0e0e0;
 color:#333;
 border:none;
 }
 
-/* --- удалить --- */
+/* --- КОРЗИНА СНИЗУ --- */
+.bottomCart{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+
+background: rgba(255,255,255,0.95);
+backdrop-filter: blur(12px);
+
+padding:12px 16px;
+border-top:1px solid rgba(0,0,0,0.06);
+
+box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+z-index:100;
+}
+
+.bottomCart button{
+margin:0;
+}
+
+/* чтобы не перекрывалось */
+body{
+padding-bottom:90px;
+}
+
+/* --- УДАЛЕНИЕ --- */
 .removeBtn{
 background:#ffebee;
 color:#c62828;
 border:none;
-padding:8px;
-border-radius:10px;
 margin-top:10px;
 }
 
-/* --- очистить --- */
+/* --- ОЧИСТКА --- */
 .clearBtn{
 background:#ffe0e0;
 color:#b71c1c;
 margin-top:10px;
 }
 
-/* --- disabled --- */
+/* --- DISABLED --- */
 button:disabled{
 background:#ccc;
 color:#777;
