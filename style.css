@@ -3,7 +3,6 @@ font-family: system-ui, -apple-system, sans-serif;
 margin:0;
 padding:16px;
 
-/* мягкий кремовый фон */
 background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
 color:#1a1a1a;
 }
@@ -24,17 +23,25 @@ font-size:14px;
 color:#6b6b6b;
 }
 
-/* --- список дней --- */
+/* --- контейнер --- */
 #menu{
 display:flex;
 flex-direction:column;
 gap:16px;
 }
 
-/* --- карточка дня --- */
+/* --- верхний блок (меню + корзина) --- */
+.topBlock{
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-bottom:10px;
+}
+
+/* --- карточки --- */
 .setCard{
-background: rgba(255,255,255,0.7);
-backdrop-filter: blur(10px);
+background: rgba(255,255,255,0.75);
+backdrop-filter: blur(12px);
 border-radius:16px;
 padding:16px;
 
@@ -48,49 +55,19 @@ margin:0 0 10px 0;
 font-weight:600;
 }
 
-/* --- цена --- */
-.price{
-font-size:18px;
-font-weight:600;
-color:#2e7d32;
-margin-bottom:10px;
-}
-
-/* --- кнопки --- */
-button{
-background: rgba(46,204,113,0.15);
-border:1px solid rgba(46,204,113,0.35);
-color:#1a3d2f;
-
-padding:10px 14px;
-border-radius:12px;
-cursor:pointer;
-transition:0.2s;
-}
-
-/* hover */
-button:hover{
-background: rgba(46,204,113,0.35);
-}
-
-/* нажатие */
-button:active{
-transform:scale(0.96);
-}
-
-/* --- экран блюда --- */
+/* --- экран дня --- */
 .setFull{
-background: rgba(255,255,255,0.75);
-backdrop-filter: blur(12px);
+background: rgba(255,255,255,0.8);
+backdrop-filter: blur(14px);
 border-radius:18px;
 padding:20px;
 
 box-shadow:
-0 8px 30px rgba(0,0,0,0.1),
+0 10px 30px rgba(0,0,0,0.1),
 inset 0 0 0 1px rgba(255,255,255,0.6);
 }
 
-/* список */
+/* --- списки --- */
 .setFull ul{
 padding-left:18px;
 margin-bottom:20px;
@@ -101,39 +78,82 @@ line-height:1.5;
 margin-bottom:6px;
 }
 
-/* большая цена */
-.priceBig{
-font-size:22px;
-font-weight:700;
-color:#2e7d32;
-margin-bottom:16px;
-}
-
-/* кнопка заказа */
-.orderBtn{
+/* --- кнопки (главное исправление) --- */
+button{
+display:block;
 width:100%;
+
+background: rgba(46,204,113,0.15);
+border:1px solid rgba(46,204,113,0.35);
+color:#1a3d2f;
+
 padding:14px;
-font-size:16px;
-margin-bottom:10px;
 border-radius:14px;
+
+font-size:15px;
+font-weight:500;
+
+cursor:pointer;
+transition:0.2s;
+
+margin-top:10px;
 }
 
-/* кнопка назад */
+/* hover */
+button:hover{
+background: rgba(46,204,113,0.35);
+}
+
+/* active */
+button:active{
+transform:scale(0.97);
+}
+
+/* выбранное */
+button.active{
+background:#2e7d32;
+color:white;
+box-shadow:0 4px 12px rgba(46,125,50,0.3);
+}
+
+/* --- кнопка корзины --- */
+.cartBtn{
+background:#2e7d32;
+color:white;
+font-weight:600;
+}
+
+/* --- кнопка заказа --- */
+.orderBtn{
+margin-top:16px;
+font-size:16px;
+}
+
+/* --- кнопка назад --- */
 .backBtn{
-width:100%;
 background:#e0e0e0;
 color:#333;
 border:none;
 }
 
-/* --- доп инфо --- */
-.spots{ 
-margin-bottom:10px;
-font-size:14px;
-color:#6b6b6b;
+/* --- удалить --- */
+.removeBtn{
+background:#ffebee;
+color:#c62828;
+border:none;
+padding:8px;
+border-radius:10px;
+margin-top:10px;
 }
 
-/* disabled */
+/* --- очистить --- */
+.clearBtn{
+background:#ffe0e0;
+color:#b71c1c;
+margin-top:10px;
+}
+
+/* --- disabled --- */
 button:disabled{
 background:#ccc;
 color:#777;
