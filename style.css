@@ -1,40 +1,54 @@
-body{
-font-family:Arial, sans-serif;
+body{ 
+font-family: system-ui, -apple-system, sans-serif;
 margin:0;
-background:#f3f3f3;
 padding:16px;
+
+/* мягкий кремовый фон */
+background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
+color:#1a1a1a;
 }
 
+/* --- заголовок --- */
 h1{
 text-align:center;
 margin-bottom:20px;
-color:#2e7d32;
+color:#1f5f3f;
+font-weight:600;
 }
 
+/* --- описание --- */
 #setInfo{
 text-align:center;
 margin-bottom:20px;
 font-size:14px;
-color:#555;
+color:#6b6b6b;
 }
 
+/* --- список дней --- */
 #menu{
 display:flex;
 flex-direction:column;
 gap:16px;
 }
 
+/* --- карточка дня --- */
 .setCard{
-background:white;
-border-radius:14px;
+background: rgba(255,255,255,0.7);
+backdrop-filter: blur(10px);
+border-radius:16px;
 padding:16px;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
+
+box-shadow:
+0 6px 20px rgba(0,0,0,0.08),
+inset 0 0 0 1px rgba(255,255,255,0.6);
 }
 
 .setCard h2{
 margin:0 0 10px 0;
+font-weight:600;
 }
 
+/* --- цена --- */
 .price{
 font-size:18px;
 font-weight:600;
@@ -42,35 +56,52 @@ color:#2e7d32;
 margin-bottom:10px;
 }
 
+/* --- кнопки --- */
 button{
-background:#4CAF50;
-color:white;
-border:none;
+background: rgba(46,204,113,0.15);
+border:1px solid rgba(46,204,113,0.35);
+color:#1a3d2f;
+
 padding:10px 14px;
-border-radius:8px;
+border-radius:12px;
 cursor:pointer;
+transition:0.2s;
 }
 
+/* hover */
 button:hover{
-background:#43a047;
+background: rgba(46,204,113,0.35);
 }
 
+/* нажатие */
+button:active{
+transform:scale(0.96);
+}
+
+/* --- экран блюда --- */
 .setFull{
-background:white;
-border-radius:16px;
+background: rgba(255,255,255,0.75);
+backdrop-filter: blur(12px);
+border-radius:18px;
 padding:20px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
+
+box-shadow:
+0 8px 30px rgba(0,0,0,0.1),
+inset 0 0 0 1px rgba(255,255,255,0.6);
 }
 
+/* список */
 .setFull ul{
 padding-left:18px;
 margin-bottom:20px;
+line-height:1.5;
 }
 
 .setFull li{
 margin-bottom:6px;
 }
 
+/* большая цена */
 .priceBig{
 font-size:22px;
 font-weight:700;
@@ -78,26 +109,34 @@ color:#2e7d32;
 margin-bottom:16px;
 }
 
+/* кнопка заказа */
 .orderBtn{
 width:100%;
 padding:14px;
 font-size:16px;
 margin-bottom:10px;
+border-radius:14px;
 }
 
+/* кнопка назад */
 .backBtn{
 width:100%;
-background:#ddd;
+background:#e0e0e0;
 color:#333;
+border:none;
 }
 
-.spots{
+/* --- доп инфо --- */
+.spots{ 
 margin-bottom:10px;
 font-size:14px;
-color:#555;
+color:#6b6b6b;
 }
 
+/* disabled */
 button:disabled{
-background:#bbb;
+background:#ccc;
+color:#777;
 cursor:not-allowed;
+border:none;
 }
