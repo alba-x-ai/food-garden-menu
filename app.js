@@ -138,21 +138,45 @@ const pieOptions = [
 
 // --- UI ---
 function chip(text, active, onclick){
-return `<button class="${active ? 'active' : ''}" onclick="${onclick}">${text}</button>`
+return `<button class="fadeIn ${active ? 'active' : ''}" onclick="${onclick}">${text}</button>`
 }
 
-// --- ГЛАВНЫЙ ЭКРАН ---
+// --- КОРЗИНА СНИЗУ ---
+function renderBottomCart(){
+
+const existing = document.getElementById("bottomCart")
+if(existing) existing.remove()
+
+const div = document.createElement("div")
+div.className = "bottomCart"
+div.id = "bottomCart"
+
+div.innerHTML = `
+<div class="cartInfo">
+${cart.length === 0 ? "Корзина пуста" : `Товаров: ${cart.length}`}
+</div>
+
+<button class="cartAction" onclick="openCart()">
+Открыть
+</button>
+`
+
+document.body.appendChild(div)
+}
+
+// --- ГЛАВНЫЙ ---
 function renderTypes(){
 
 menuDiv.innerHTML = `
 <h1>Food Garden</h1>
 
 <div class="topBlock">
-<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button onclick="openMenu('russian')">Русское меню</button>
 <button onclick="openMenu('international')">Интернациональное меню</button>
 </div>
 `
+
+renderBottomCart()
 }
 
 // --- ДНИ ---
@@ -163,19 +187,20 @@ currentMenu = menus[type]
 
 menuDiv.innerHTML = `
 <div class="topBlock">
-<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button class="backBtn" onclick="renderTypes()">← Назад</button>
 </div>
 `
 
 currentMenu.forEach((set,i)=>{
 menuDiv.innerHTML += `
-<div class="setCard">
+<div class="setCard fadeIn">
 <h2>${set.day}</h2>
 <button onclick="openDay(${i})">Открыть меню</button>
 </div>
 `
 })
+
+renderBottomCart()
 }
 
 // --- ДЕНЬ ---
@@ -191,11 +216,10 @@ const sel = selection[set.day]
 
 menuDiv.innerHTML = `
 <div class="topBlock">
-<button class="cartBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>
 <button class="backBtn" onclick="openMenu('${currentType}')">← Назад</button>
 </div>
 
-<div class="setFull">
+<div class="setFull fadeIn">
 
 <h2>${set.day}</h2>
 
@@ -214,10 +238,14 @@ ${breadOptions.map(b=>chip(b, sel.bread===b, `selectBread('${set.day}','${b}')`)
 <h3>Пирожки</h3>
 ${pieOptions.map(p=>chip(p, sel.pies===p, `selectPies('${set.day}','${p}')`)).join("")}
 
-<button class="orderBtn" onclick="addToCart(${index})">Добавить в корзину</button>
+<button class="orderBtn" onclick="addToCart(${index})">
+Добавить в корзину
+</button>
 
 </div>
 `
+
+renderBottomCart()
 }
 
 // --- ВЫБОР ---
@@ -244,18 +272,21 @@ return
 
 cart.push({...sel, day:set.day})
 
+renderBottomCart()
 alert("Добавлено")
 }
 
 // --- УДАЛЕНИЕ ---
 function removeFromCart(index){
 cart.splice(index,1)
+renderBottomCart()
 openCart()
 }
 
 // --- ОЧИСТКА ---
 function clearCart(){
 cart = []
+renderBottomCart()
 openCart()
 }
 
@@ -272,7 +303,7 @@ menuDiv.innerHTML = `
 ${cart.length === 0 ? "<p>Корзина пуста</p>" : ""}
 
 ${cart.map((i,index)=>`
-<div class="setCard">
+<div class="setCard fadeIn">
 <b>${i.day}</b><br>
 Супы: ${i.soup}<br>
 Второе: ${i.main}<br>
@@ -288,6 +319,8 @@ ${cart.length > 0 ? `
 <button class="orderBtn" onclick="checkout()">Оформить заказ</button>
 ` : ""}
 `
+
+renderBottomCart()
 }
 
 // --- ОТПРАВКА ---
