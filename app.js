@@ -136,43 +136,49 @@ const pieOptions = [
 "С яйцом, луком и рисом"
 ]
 
-// --- UI ---
+// --- UI (теперь button) ---
 function chip(text, active, onclick){
-return `<div class="glass-btn ${active?'active':''}" onclick="${onclick}">${text}</div>`
+return `<button class="${active ? 'active' : ''}" onclick="${onclick}">${text}</button>`
 }
 
 function header(){
-return `<div class="glass-btn" onclick="openCart()">🛒 Корзина (${cart.length})</div>`
+return `<button class="orderBtn" onclick="openCart()">🛒 Корзина (${cart.length})</button>`
 }
 
 // --- ГЛАВНЫЙ ---
 function renderTypes(){
 menuDiv.innerHTML = `
-<h2>Food Garden</h2>
+<h1>Food Garden</h1>
 ${header()}
-<div class="glass-btn" onclick="openMenu('russian')">Русское меню</div>
-<div class="glass-btn" onclick="openMenu('international')">Интернациональное меню</div>
+<div class="setCard">
+<button onclick="openMenu('russian')">Русское меню</button>
+</div>
+<div class="setCard">
+<button onclick="openMenu('international')">Интернациональное меню</button>
+</div>
 `
 }
 
 // --- ДНИ ---
 function openMenu(type){
+
 currentType = type
 currentMenu = menus[type]
 
 menuDiv.innerHTML = `
 ${header()}
-<div class="glass-btn" onclick="renderTypes()">← Назад</div>
+<button class="backBtn" onclick="renderTypes()">← Назад</button>
 `
 
 currentMenu.forEach((set,i)=>{
 menuDiv.innerHTML += `
-<div class="card">
-<h3>${set.day}</h3>
-<div class="glass-btn" onclick="openDay(${i})">Открыть</div>
+<div class="setCard">
+<h2>${set.day}</h2>
+<button onclick="openDay(${i})">Открыть</button>
 </div>
 `
 })
+
 }
 
 // --- ДЕНЬ ---
@@ -188,11 +194,13 @@ const sel = selection[set.day]
 
 menuDiv.innerHTML = `
 ${header()}
-<div class="glass-btn" onclick="openMenu('${currentType}')">← Назад</div>
+<button class="backBtn" onclick="openMenu('${currentType}')">← Назад</button>
+
+<div class="setFull">
 
 <h2>${set.day}</h2>
 
-<h3>ФИКС</h3>
+<h3>Фиксированное меню</h3>
 <ul>${set.fixed.map(i=>`<li>${i}</li>`).join("")}</ul>
 
 <h3>Пара супов</h3>
@@ -207,7 +215,9 @@ ${breadOptions.map(b=>chip(b, sel.bread===b, `selectBread('${set.day}','${b}')`)
 <h3>Пирожки</h3>
 ${pieOptions.map(p=>chip(p, sel.pies===p, `selectPies('${set.day}','${p}')`)).join("")}
 
-<div class="glass-btn" onclick="addToCart(${index})">Добавить в корзину</div>
+<button class="orderBtn" onclick="addToCart(${index})">Добавить в корзину</button>
+
+</div>
 `
 }
 
@@ -241,11 +251,11 @@ alert("Добавлено")
 function openCart(){
 
 menuDiv.innerHTML = `
-<div class="glass-btn" onclick="renderTypes()">← Назад</div>
+<button class="backBtn" onclick="renderTypes()">← Назад</button>
 <h2>Корзина</h2>
 
 ${cart.map(i=>`
-<div class="card">
+<div class="setCard">
 <b>${i.day}</b><br>
 Супы: ${i.soup}<br>
 Второе: ${i.main}<br>
@@ -254,16 +264,18 @@ ${cart.map(i=>`
 </div>
 `).join("")}
 
-<div class="glass-btn" onclick="checkout()">Оформить заказ</div>
+<button class="orderBtn" onclick="checkout()">Оформить заказ</button>
 `
 }
 
 // --- ОТПРАВКА ---
 function checkout(){
+
 if(cart.length===0){
 alert("Корзина пустая")
 return
 }
+
 tg.sendData(JSON.stringify({cart}))
 tg.close()
 }
