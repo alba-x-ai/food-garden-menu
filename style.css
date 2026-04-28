@@ -6,6 +6,9 @@ padding:16px;
 
 background: linear-gradient(180deg, #f5f2ed 0%, #ebe6df 100%);
 color:#1a1a1a;
+
+/* чтобы не перекрывалось корзиной */
+padding-bottom:90px;
 }
 
 /* --- ЗАГОЛОВОК --- */
@@ -39,9 +42,9 @@ gap:10px;
 margin-bottom:10px;
 }
 
-/* --- КАРТОЧКИ ДНЕЙ --- */
+/* --- КАРТОЧКИ --- */
 .setCard{
-background: rgba(255,255,255,0.8);
+background: rgba(255,255,255,0.85);
 backdrop-filter: blur(10px);
 border-radius:16px;
 padding:16px;
@@ -58,7 +61,7 @@ font-weight:600;
 
 /* --- ЭКРАН ВЫБОРА --- */
 .setFull{
-background: rgba(255,255,255,0.85);
+background: rgba(255,255,255,0.9);
 backdrop-filter: blur(12px);
 border-radius:18px;
 padding:20px;
@@ -90,7 +93,7 @@ margin:0;
 margin-bottom:6px;
 }
 
-/* --- КНОПКИ (ГЛАВНОЕ) --- */
+/* --- КНОПКИ --- */
 button{
 display:block;
 width:100%;
@@ -106,7 +109,7 @@ font-size:14px;
 font-weight:500;
 
 cursor:pointer;
-transition:all 0.2s ease;
+transition: all 0.18s ease;
 
 margin-top:8px;
 }
@@ -116,16 +119,33 @@ button:hover{
 background: rgba(46,204,113,0.3);
 }
 
-/* активное */
+/* нажатие */
 button:active{
-transform:scale(0.97);
+transform: scale(0.97);
 }
 
 /* выбранное */
 button.active{
 background:#2e7d32;
 color:white;
-box-shadow:0 4px 12px rgba(46,125,50,0.3);
+box-shadow:0 6px 18px rgba(46,125,50,0.25);
+transform: scale(1.02);
+}
+
+/* плавное появление */
+.fadeIn{
+animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(8px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 /* --- ОСНОВНЫЕ КНОПКИ --- */
@@ -157,16 +177,28 @@ padding:12px 16px;
 border-top:1px solid rgba(0,0,0,0.06);
 
 box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
 z-index:100;
 }
 
-.bottomCart button{
-margin:0;
+/* текст */
+.cartInfo{
+font-size:14px;
+color:#555;
 }
 
-/* чтобы не перекрывалось */
-body{
-padding-bottom:90px;
+/* кнопка */
+.cartAction{
+background:#4CAF50;
+color:white;
+border:none;
+padding:10px 14px;
+border-radius:10px;
+font-weight:600;
 }
 
 /* --- УДАЛЕНИЕ --- */
